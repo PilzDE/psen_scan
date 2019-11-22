@@ -1,0 +1,73 @@
+// Copyright (c) 2019 Pilz GmbH & Co. KG
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#ifndef PSEN_SCAN_SCANNER_H
+#define PSEN_SCAN_SCANNER_H
+
+#include "psen_scan/scanner_frames.h"
+#include "psen_scan/psen_scan_udp_interface.h"
+#include "psen_scan/laserscan.h"
+#include <memory>
+
+namespace psen_scan
+{
+
+// LCOV_EXCL_START
+class vScanner
+{
+public:
+  virtual ~vScanner() = default;
+  virtual void start() = 0;
+  virtual void stop() = 0;
+  virtual LaserScan getCompleteScan() = 0;
+};
+// LCOV_EXCL_STOP
+
+/**
+ * @brief Class for Modeling a PSENscan safety laser scanner
+ *
+ */
+class Scanner : public vScanner
+{
+  public:
+    Scanner(const std::string &scanner_ip,
+            const uint32_t       &host_ip,
+            const uint32_t &host_udp_port,
+            const std::string   &password,
+            const uint16_t   &angle_start,
+            const uint16_t     &angle_end,
+            std::unique_ptr<UDPInterface> udp_interface );
+
+    void start();
+    void stop();
+    LaserScan getCompleteScan();
+
+  private:
+    std::string                                       scanner_ip_; /**< IP-Adress of Laserscanner */
+    StartMonitoringFrame                  start_monitoring_frame_; /**< Start Monitoring Command Frame */
+    StopMonitoringFrame                    stop_monitoring_frame_; /**< Stop Monitoring Command Frame */
+    uint16_t                                         angle_start_; /**< Start angle of Laserscanner measurements */
+    uint16_t                                           angle_end_; /**< End angle of Laserscanner measurements */
+    std::unique_ptr<UDPInterface>                  udp_interface_; /**< Pointer to UDP Communication Interface */
+    MonitoringFrame                    previous_monitoring_frame_; /**< Buffer for incoming Laserscanner data */
+
+    MonitoringFrame fetchMonitoringFrame();
+    bool isDiagnosticInformationOk(const DiagnosticInformation& diag_info);
+    bool parseFields(const MonitoringFrame& monitoring_frame);
+};
+
+}
+
+#endif // PSEN_SCAN_SCANNER_H
