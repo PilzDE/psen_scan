@@ -141,13 +141,12 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_zero)
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
-  boost::thread thrd(&TestSubscriber::spin, &test_sub);
-  while(!test_sub.ready_)
-  {
-    sleep(1);
-  }
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
 
   ros_scanner_node.processingLoop();
+
+  spinner.stop();
 
   EXPECT_EQ(504, test_sub.receivedMessage_);
 }
@@ -185,13 +184,11 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_one)
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
-  boost::thread thrd(&TestSubscriber::spin, &test_sub);
-  while(!test_sub.ready_)
-  {
-    sleep(1);
-  }
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
 
   ros_scanner_node.processingLoop();
+  spinner.stop();
 
   EXPECT_EQ(252, test_sub.receivedMessage_);
 }
@@ -229,13 +226,11 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_99)
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
-  boost::thread thrd(&TestSubscriber::spin, &test_sub);
-  while(!test_sub.ready_)
-  {
-    sleep(1);
-  }
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
 
   ros_scanner_node.processingLoop();
+  spinner.stop();
 
   EXPECT_EQ(5, test_sub.receivedMessage_);
 }
@@ -262,13 +257,11 @@ TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
-  boost::thread thrd(&TestSubscriber::spin, &test_sub);
-  while(!test_sub.ready_)
-  {
-    sleep(1);
-  }
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
 
   ASSERT_THROW(ros_scanner_node.processingLoop(), FetchMonitoringFrameException);
+  spinner.stop();
 
   EXPECT_EQ(0, test_sub.receivedMessage_);
 }
@@ -311,5 +304,9 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "ros_scanner_node_test");
   ros::NodeHandle nh; // keep one nh to avoid
   testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+
+  int ret = RUN_ALL_TESTS();
+  ros::shutdown();
+  return ret;
 }
+
