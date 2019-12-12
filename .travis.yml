@@ -11,6 +11,7 @@ notifications:
       - g.sansone@pilz.de
       - c.doehn@pilz.de
       - s.heinisch@pilz.de
+      - o.ibrocevic@pilz.de
 env:
   global:
     - CATKIN_LINT=true
