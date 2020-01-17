@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -16,8 +16,10 @@
 #ifndef PSEN_SCAN_ROS_PARAMETER_HANDLER_H
 #define PSEN_SCAN_ROS_PARAMETER_HANDLER_H
 
+
 #include <psen_scan/scanner_data.h>
 #include <ros/ros.h>
+#include <psen_scan/default_parameters.h>
 
 namespace psen_scan
 {
@@ -32,6 +34,7 @@ const std::map<std::string, bool> ROS_PARAMETER =
                                                     {"skip",          false},
                                                     {"angle_start",   false},
                                                     {"angle_end",     false},
+                                                    {"x_axis_rotation", false},
                                                     {"publish_topic", false}
                                                   };
 
@@ -51,8 +54,8 @@ class RosParameterHandler
     uint16_t                  getSkip() const;
     uint16_t            getAngleStart() const;
     uint16_t              getAngleEnd() const;
+    double           getXAxisRotation() const;
     std::string       getPublishTopic() const;
-
   private:
     ros::NodeHandle       const nh_; /**< Nodehandle through which parameters are fetched */
     std::string           password_; /**< Password for Laserscanner */
@@ -63,8 +66,8 @@ class RosParameterHandler
     uint16_t                  skip_; /**< How many incoming frames should be skipped (reduces publish rate) */
     uint16_t           angle_start_; /**< Start angle of measurement */
     uint16_t             angle_end_; /**< End angle of measurement */
+    double         x_axis_rotation_; /**< Rotation of x-axis arround the center */
     std::string      publish_topic_; /**< Topic to publish Laserscan data on */
-
     template<class T>
     T getParamFromNh(const ros::NodeHandle& nh, const std::string& key) const;
 

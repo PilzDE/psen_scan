@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +17,7 @@
 #include "psen_scan/get_ros_parameter_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/decrypt_password_exception.h"
+#include <psen_scan/default_parameters.h>
 #include <arpa/inet.h>
 #include <algorithm>
 
@@ -38,6 +39,7 @@ frame_id_("scanner"),
 skip_(0),
 angle_start_(0),
 angle_end_(2750),
+x_axis_rotation_(default_x_axis_rotation),
 publish_topic_("scan")
 {
   try
@@ -80,6 +82,12 @@ publish_topic_("scan")
       throw PSENScanFatalException("Parameter angle_end may not be negative!");
     }
     angle_end_ = static_cast<uint16_t>(angle_end);
+
+    x_axis_rotation_    = getParamFromNh<double>(nh_, "x_axis_rotation");
+    if ((x_axis_rotation_ > max_x_axis_rotation) || (x_axis_rotation_ < min_x_axis_rotation))
+    {
+      throw PSENScanFatalException("Parameter x_axis_rotation is out of range. [-360.0 .. 360.0]");
+    }
 
     int skip = getParamFromNh<int>(nh_, "skip");
     if ( skip < 0 )
@@ -176,7 +184,7 @@ uint16_t RosParameterHandler::getSkip() const
  */
 uint16_t RosParameterHandler::getAngleStart() const
 {
-    return angle_start_;
+  return angle_start_;
 }
 
 /**
@@ -190,6 +198,16 @@ uint16_t RosParameterHandler::getAngleEnd() const
 }
 
 /**
+ * @brief Getter Method for x_axis_rotation_
+ *
+ * @return double
+ */
+double RosParameterHandler::getXAxisRotation() const
+{
+  return x_axis_rotation_;
+}
+
+/**
  * @brief Getter method for publish_topic_
  *
  * @return std::string
@@ -198,9 +216,6 @@ std::string RosParameterHandler::getPublishTopic() const
 {
   return publish_topic_;
 }
-
-
-
 
 /**
  * @brief Gets one ROS-parameter from parameter-server

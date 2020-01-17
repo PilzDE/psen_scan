@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -138,6 +138,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_zero)
                     "node1_topic",
                     "node1_frame",
                                 0, //every frame
+                            137.5,
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -181,6 +182,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_one)
                     "node1_topic",
                     "node1_frame",
                                 1, //every other frame
+                            137.5,
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -223,6 +225,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_99)
                     "node1_topic",
                     "node1_frame",
                                 99, //every hundredth frame
+                             137.5,
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -254,6 +257,7 @@ TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
                     "node1_topic",
                     "node1_frame",
                                 0,
+                            137.5,
     std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -273,6 +277,7 @@ TEST_F(ros_scanner_node_test, buildROSMessage)
                     "node1_topic",
                     "node1_frame",
                                 0,
+                             137.5,
     std::move(node1_Scanner_test));
 
   ros_scanner_node.buildRosMessage(*laser_scan_fake);
@@ -291,6 +296,7 @@ TEST_F(ros_scanner_node_test, constructor)
       "node1_topic",
       "node1_frame",
       0,
+      137.5,
       nullptr // This throws exception
     ),
     PSENScanFatalException

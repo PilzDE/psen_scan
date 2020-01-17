@@ -61,6 +61,9 @@ Start angle of measurement.
 _angle_end_ (_float_, default: 275)<br/>
 End angle of measurement.
 
+_x_axis_rotation_ (_float_, default: 137.5)<br/>
+Clockwise rotation of the x-axis around the center in degrees.
+
 _publish_topic_ (_string_, default: "scan")<br/>
 Topic to publish LaserScan data on.
 

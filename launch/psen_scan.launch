@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2019 Pilz GmbH & Co. KG
+Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -41,6 +41,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <!-- End angle of measurement -->
   <arg name="angle_end" default="275" />
 
+  <!-- Rotation of x-axis around the center. -->
+  <arg name="x_axis_rotation" default="137.5" />
+
   <!-- Topic to publish LaserScan data on -->
   <arg name="publish_topic" default="scan" />
 
@@ -56,6 +59,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <rosparam param="skip" subst_value="True">$(arg skip)</rosparam>
     <rosparam param="angle_start" subst_value="True">$(arg angle_start)</rosparam>
     <rosparam param="angle_end" subst_value="True">$(arg angle_end)</rosparam>
+    <rosparam param="x_axis_rotation" subst_value="True">$(arg x_axis_rotation)</rosparam>
     <rosparam param="publish_topic" subst_value="True">$(arg publish_topic)</rosparam>
   </node>
   <node name="rviz" type="rviz" pkg="rviz" args="-d $(find psen_scan)/config/config.rviz" />

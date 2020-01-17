@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -35,12 +35,14 @@ ROSScannerNode::ROSScannerNode ( ros::NodeHandle& nh,
                                  const std::string& topic,
                                  const std::string& frame_id,
                                  const uint16_t& skip,
+                                 const double& x_axis_rotation,
                                  std::unique_ptr<vScanner> scanner
                                )
 :nh_(nh),
 frame_id_(frame_id),
 skip_(skip),
-scanner_(std::move(scanner))
+scanner_(std::move(scanner)),
+x_axis_rotation_(x_axis_rotation)
 {
   if( !scanner_ )
   {
@@ -92,11 +94,11 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
   sensor_msgs::LaserScan ros_message;
   ros_message.header.stamp = ros::Time::now();
   ros_message.header.frame_id = frame_id_;
-  ros_message.angle_min = degToRad(laserscan.min_scan_angle_ / 10.0);
-  ros_message.angle_max = degToRad(laserscan.max_scan_angle_ / 10.0);
+  ros_message.angle_min = degToRad(laserscan.min_scan_angle_ / 10.0 - x_axis_rotation_);
+  ros_message.angle_max = degToRad(laserscan.max_scan_angle_ / 10.0 - x_axis_rotation_);
   ros_message.angle_increment = degToRad(laserscan.resolution_ / 10.0);
-  ros_message.time_increment = 0;
-  ros_message.scan_time = 0;
+  ros_message.time_increment = SCAN_TIME/NUMBER_OF_SAMPLES_FULL_SCAN_MASTER;
+  ros_message.scan_time = SCAN_TIME;
   ros_message.range_min = 0;
   ros_message.range_max = 10;
   ros_message.ranges.insert(ros_message.ranges.end(), laserscan.measures_.rbegin(), laserscan.measures_.rend()); // reverse order

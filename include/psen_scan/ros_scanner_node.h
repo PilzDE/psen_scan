@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -36,6 +36,7 @@ class ROSScannerNode
                      const std::string& topic,
                      const std::string& frame_id,
                      const uint16_t& skip,
+                     const double& x_axis_rotation,
                      std::unique_ptr<vScanner> scanner
                    );
     sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
@@ -44,9 +45,10 @@ class ROSScannerNode
   private:
     ros::NodeHandle nh_;               /**< ROS Node handler*/
     ros::Publisher pub_;               /**< ROS message publisher*/
-    std::string frame_id_;             /**< Defines the name of the frame_id. Default is sanner.*/
+    std::string frame_id_;             /**< Defines the name of the frame_id. Default is scanner.*/
     uint16_t skip_;                    /**< Skip certain number of frames. Reduces publish rate. */
     std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
+    double  x_axis_rotation_;           /**< X-axis rotation.*/
 };
 
 }

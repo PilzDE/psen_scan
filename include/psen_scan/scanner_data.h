@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -50,6 +50,8 @@ uint16_t const MAX_NUMBER_OF_SAMPLES = 550; /**< Maximum number of samples per U
 std::size_t const PSEN_SCAN_PORT = 3000; /**< Port on which Laserscanner expects messages */
 uint16_t const MIN_SCAN_ANGLE = 0;    /**< Lowest  scan angle in tenth of degree */
 uint16_t const MAX_SCAN_ANGLE = 2750; /**< Highest scan angle in tenth of degree */
+uint16_t const NUMBER_OF_SAMPLES_FULL_SCAN_MASTER = 2750; /**< Number of samples for complete scan for master scanner*/
+double const SCAN_TIME = 0.03; /**< Time per scan in seconds*/
 
 }
 

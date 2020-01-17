@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,9 @@ using namespace psen_scan;
           DELETE_ROS_PARAM("angle_end"); \
           DELETE_ROS_PARAM("frame_id"); \
           DELETE_ROS_PARAM("skip"); \
-          DELETE_ROS_PARAM("publish_topic");
+          DELETE_ROS_PARAM("publish_topic");\
+          DELETE_ROS_PARAM("x_axis_rotation");
+
 
 namespace psen_scan_test
 {
@@ -59,7 +61,7 @@ class ROSParameterHandlerTest : public ::testing::Test
       default_publish_topic_  =    "scan";
       default_angle_start_    =         0;
       default_angle_end_      =      2750;
-
+      default_x_axis_rotation_ =  default_x_axis_rotation;
       expected_host_ip_        = htobe32(inet_network(host_ip_.c_str()));
       expected_host_udp_port_  =                 htole32(host_udp_port_);
     }
@@ -69,6 +71,7 @@ class ROSParameterHandlerTest : public ::testing::Test
     std::string sensor_ip_;
     std::string   host_ip_;
     int     host_udp_port_;
+    double x_axis_rotation_;
 
     // Default expected values
     std::string      default_password_;
@@ -79,6 +82,7 @@ class ROSParameterHandlerTest : public ::testing::Test
     uint32_t   expected_host_udp_port_;
     uint16_t      default_angle_start_;
     uint16_t        default_angle_end_;
+    double    default_x_axis_rotation_;
 };
 
 TEST_F(ROSParameterHandlerTest, test_no_param)
@@ -112,6 +116,7 @@ TEST_F(ROSParameterHandlerTest, test_required_params_only)
     EXPECT_EQ(param_handler.getSkip(), default_skip_);
     EXPECT_EQ(param_handler.getAngleStart(), default_angle_start_);
     EXPECT_EQ(param_handler.getAngleEnd(), default_angle_end_);
+    EXPECT_EQ(param_handler.getXAxisRotation(), default_x_axis_rotation_);
     EXPECT_EQ(param_handler.getPublishTopic(), default_publish_topic_);
   );
 
@@ -157,13 +162,14 @@ TEST_F(ROSParameterHandlerTest, test_all_params)
   std::string publish_topic = "zyxwvu";
   float angle_start = 10.5;
   float angle_end = 204.7;
-
+  double x_axis_rotation = 100.3;
   ros::param::set("password", password_);
   ros::param::set("sensor_ip", sensor_ip_);
   ros::param::set("host_ip", host_ip_);
   ros::param::set("host_udp_port", host_udp_port_);
   ros::param::set("angle_start", angle_start);
   ros::param::set("angle_end", angle_end);
+  ros::param::set("x_axis_rotation", x_axis_rotation);
   ros::param::set("frame_id", frame_id);
   ros::param::set("skip", skip);
   ros::param::set("publish_topic", publish_topic);
@@ -171,6 +177,7 @@ TEST_F(ROSParameterHandlerTest, test_all_params)
   uint16_t expected_skip = 2;
   uint16_t expected_angle_start = 105;
   uint16_t expected_angle_end = 2047;
+  double   expected_x_axis_rotation = x_axis_rotation;
 
   ASSERT_NO_THROW
   (
@@ -183,6 +190,7 @@ TEST_F(ROSParameterHandlerTest, test_all_params)
     EXPECT_EQ(param_handler.getSkip(), expected_skip);
     EXPECT_EQ(param_handler.getAngleStart(), expected_angle_start);
     EXPECT_EQ(param_handler.getAngleEnd(), expected_angle_end);
+    EXPECT_EQ(param_handler.getXAxisRotation(), expected_x_axis_rotation);
     EXPECT_EQ(param_handler.getPublishTopic(), publish_topic);
   );
 
@@ -227,6 +235,37 @@ TEST_F(ROSParameterHandlerTest, test_invalid_params)
       EXPECT_EQ(param_handler.getAngleStart(), 230);
       EXPECT_EQ(param_handler.getAngleEnd(), 838);
     );
+
+  // Set rotation to wrong format and test at limits with wrong datatype integer instead of double
+  ros::param::set("x_axis_rotation", static_cast<int>(360));
+  ASSERT_NO_THROW
+    (
+      RosParameterHandler param_handler(node_handle);
+      EXPECT_EQ(param_handler.getXAxisRotation(), static_cast<double>(360.0));
+    );
+
+  ros::param::set("x_axis_rotation", static_cast<int>(-360));
+  ASSERT_NO_THROW
+    (
+      RosParameterHandler param_handler(node_handle);
+      EXPECT_EQ(param_handler.getXAxisRotation(), static_cast<double>(-360.0));
+    );
+
+  ros::param::set("x_axis_rotation", static_cast<int>(361));
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle), PSENScanFatalException);
+
+  ros::param::set("x_axis_rotation", static_cast<int>(-361));
+  ASSERT_THROW(RosParameterHandler param_handler(node_handle), PSENScanFatalException);
+
+  ros::param::set("x_axis_rotation", "ABCD");
+  ASSERT_NO_THROW
+    (
+      RosParameterHandler param_handler(node_handle);
+      EXPECT_EQ(param_handler.getXAxisRotation(), static_cast<double>(default_x_axis_rotation));
+    );
+
+  // Set rotation to a valid value to prevent additional exceptions
+  ros::param::set("x_axis_rotation", static_cast<int>(123));
 
   // Set skip with wrong datatype (expected int) as example for wrong datatypes on expected ints
   ros::param::set("skip", true);

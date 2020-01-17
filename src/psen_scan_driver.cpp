@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -53,6 +53,7 @@ int main(int argc, char **argv)
                                     param_handler.getPublishTopic(),
                                     param_handler.getFrameID(),
                                     param_handler.getSkip(),
+                                    param_handler.getXAxisRotation(),
                                     std::move(scanner)
                                     );
     ros_scanner_node.processingLoop();
