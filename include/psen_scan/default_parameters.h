@@ -16,9 +16,8 @@
 #ifndef DEFAULT_PARAMETERS_H
 #define DEFAULT_PARAMETERS_H
 
-static const double default_x_axis_rotation =  137.5;
-static const double max_x_axis_rotation     =  360.0;
-static const double min_x_axis_rotation     = -360.0;
+static const double default_x_axis_rotation = 137.5;
+static const double max_x_axis_rotation = 360.0;
+static const double min_x_axis_rotation = -360.0;
 
-
-#endif // DEFAULT_PARAMETERS_H
+#endif  // DEFAULT_PARAMETERS_H

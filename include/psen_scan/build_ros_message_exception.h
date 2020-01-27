@@ -20,15 +20,14 @@
 
 namespace psen_scan
 {
-
 class BuildROSMessageException : public std::runtime_error
 {
-  public:
-    BuildROSMessageException(const std::string& msg)
-    :std::runtime_error(msg)
-    {}
+public:
+  BuildROSMessageException(const std::string& msg)
+    : std::runtime_error(msg)
+  {
+  }
 };
-
 }
 
-#endif // PSEN_SCAN_BUILD_ROS_MESSAGE_EXCEPTION_H
+#endif  // PSEN_SCAN_BUILD_ROS_MESSAGE_EXCEPTION_H

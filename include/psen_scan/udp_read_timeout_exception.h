@@ -20,15 +20,14 @@
 
 namespace psen_scan
 {
-
 class UDPReadTimeoutException : public std::runtime_error
 {
-  public:
-    UDPReadTimeoutException(const std::string& msg)
-    :std::runtime_error(msg)
-    {}
+public:
+  UDPReadTimeoutException(const std::string& msg)
+    : std::runtime_error(msg)
+  {
+  }
 };
-
 }
 
-#endif // PSEN_SCAN_UDP_READ_TIMEOUT_EXCEPTION_H
+#endif  // PSEN_SCAN_UDP_READ_TIMEOUT_EXCEPTION_H

@@ -26,10 +26,11 @@
 
 namespace psen_scan
 {
-
-bool isValidIpAddress(const char *ipAddress)
+bool isValidIpAddress(const char* ipAddress)
 {
-  struct sockaddr_in sa;
+  struct sockaddr_in sa
+  {
+  };
   int result = inet_pton(AF_INET, ipAddress, &(sa.sin_addr));
   return result == 1;
 }
@@ -45,53 +46,51 @@ bool isValidIpAddress(const char *ipAddress)
  * @param angle_end End angle of Laserscanner measurements in tenths of degree
  * @param udp_interface Pointer to UDP Communication interface
  */
-Scanner::Scanner( const std::string &scanner_ip,
-                  const uint32_t       &host_ip,
-                  const uint32_t &host_udp_port,
-                  const std::string   &password,
-                  const uint16_t   &angle_start,
-                  const uint16_t     &angle_end,
-                  std::unique_ptr<UDPInterface> udp_interface )
-:scanner_ip_(scanner_ip),
-  start_monitoring_frame_(password, host_ip, host_udp_port),
-  stop_monitoring_frame_(password),
-  angle_start_(angle_start),
-  angle_end_(angle_end),
-  udp_interface_(std::move(udp_interface))
+Scanner::Scanner(const std::string& scanner_ip,
+                 const uint32_t& host_ip,
+                 const uint32_t& host_udp_port,
+                 const std::string& password,
+                 const uint16_t& angle_start,
+                 const uint16_t& angle_end,
+                 std::unique_ptr<UDPInterface> udp_interface)
+  : scanner_ip_(scanner_ip)
+  , start_monitoring_frame_(password, host_ip, host_udp_port)
+  , stop_monitoring_frame_(password)
+  , angle_start_(angle_start)
+  , angle_end_(angle_end)
+  , previous_monitoring_frame_({})
+  , udp_interface_(std::move(udp_interface))
 {
-  if( !isValidIpAddress(scanner_ip_.c_str()) )
+  if (!isValidIpAddress(scanner_ip_.c_str()))
   {
     throw PSENScanFatalException("Scanner IP is invalid!");
   }
 
-  if( host_udp_port > 65535 ) // MAX_UINT16
+  if (host_udp_port > 65535)  // MAX_UINT16
   {
     throw PSENScanFatalException("Host UDP Port is too big!");
   }
 
-  if( host_udp_port < 1024 )
+  if (host_udp_port < 1024)
   {
     std::cout << "Attention: UDP Port is in IANA Standard Port range (below 1024)! "
               << "Please consider using a port number above 1024." << std::endl;
   }
 
-  if( angle_start >= angle_end )
+  if (angle_start >= angle_end)
   {
     throw PSENScanFatalException("Attention: Start angle has to be smaller than end angle!");
   }
 
-  if( angle_end > MAX_SCAN_ANGLE )
+  if (angle_end > MAX_SCAN_ANGLE)
   {
     throw PSENScanFatalException("Attention: End angle has to be smaller than the physical Maximum!");
   }
 
-  if( !udp_interface_ )
+  if (!udp_interface_)
   {
     throw PSENScanFatalException("Nullpointer isn't a valid argument!");
   }
-  previous_monitoring_frame_= {};
-  stop();
-  //sleep(2);
 }
 
 /**
@@ -127,11 +126,11 @@ MonitoringFrame Scanner::fetchMonitoringFrame()
   try
   {
     bytes_received = udp_interface_->read(buf);
-    if(scanner_ip_ != udp_interface_->getUdpEndpointRead().address().to_string())
+    if (scanner_ip_ != udp_interface_->getUdpEndpointRead().address().to_string())
     {
       throw FetchMonitoringFrameException("Sender IP doesn't match Scanner IP!");
     }
-    if( bytes_received != sizeof(MonitoringFrame) )
+    if (bytes_received != sizeof(MonitoringFrame))
     {
       throw FetchMonitoringFrameException("Received Frame length doesn't match MonitoringFrame length!");
     }
@@ -141,7 +140,7 @@ MonitoringFrame Scanner::fetchMonitoringFrame()
     stop();
     sleep(1);
     start();
-    throw FetchMonitoringFrameException(e.what() + (std::string)" Restarting Scanner!");
+    throw FetchMonitoringFrameException(e.what() + static_cast<std::string>(" Restarting Scanner!"));
   }
   return monitoring_frame;
 }
@@ -157,13 +156,13 @@ MonitoringFrame Scanner::fetchMonitoringFrame()
  */
 bool Scanner::parseFields(const MonitoringFrame& monitoring_frame)
 {
-  if( monitoring_frame.opcode_ != MONITORING_FRAME_OPCODE )
+  if (monitoring_frame.opcode_ != MONITORING_FRAME_OPCODE)
   {
     previous_monitoring_frame_ = monitoring_frame;
     throw ParseMonitoringFrameException("MonitoringFrame's Opcode doesn't match expected value!");
   }
 
-  if( monitoring_frame.scanner_id_ != 0 )
+  if (monitoring_frame.scanner_id_ != 0)
   {
     previous_monitoring_frame_ = monitoring_frame;
     std::string err = "MonitoringFrame's ScannerID doesn't belong to master! \n";
@@ -171,7 +170,7 @@ bool Scanner::parseFields(const MonitoringFrame& monitoring_frame)
     throw ParseMonitoringFrameException(err);
   }
 
-  if( monitoring_frame.number_of_samples_ > MAX_NUMBER_OF_SAMPLES )
+  if (monitoring_frame.number_of_samples_ > MAX_NUMBER_OF_SAMPLES)
   {
     previous_monitoring_frame_ = monitoring_frame;
     throw ParseMonitoringFrameException("MonitoringFrame's number of samples exceeds the maximum allowed amount!");
@@ -191,107 +190,103 @@ bool Scanner::parseFields(const MonitoringFrame& monitoring_frame)
  */
 bool Scanner::isDiagnosticInformationOk(const DiagnosticInformation& diag_info)
 {
-  if(diag_info.ossd1_short_circuit_)
+  if (diag_info.ossd1_short_circuit_)
   {
     throw DiagnosticInformationException("OSSD1 Overcurrent/Short Circuit!");
   }
 
-  if(diag_info.short_circuit_at_least_two_ossd_)
+  if (diag_info.short_circuit_at_least_two_ossd_)
   {
     throw DiagnosticInformationException("Short Circuit at least between two OSSDs!");
   }
 
-  if(diag_info.integrity_check_problem_on_any_ossd_)
+  if (diag_info.integrity_check_problem_on_any_ossd_)
   {
     throw DiagnosticInformationException("Integrity check problem on any OSSD!");
   }
 
-  if( diag_info.internal_error_1_ ||
-      diag_info.internal_error_2_ ||
-      diag_info.internal_error_3_ ||
-      diag_info.internal_error_4_ ||
-      diag_info.internal_error_5_
-    )
+  if (diag_info.internal_error_1_ || diag_info.internal_error_2_ || diag_info.internal_error_3_ ||
+      diag_info.internal_error_4_ || diag_info.internal_error_5_)
   {
     throw DiagnosticInformationException("Internal Error!");
   }
 
-  if(diag_info.window_cleaning_alarm_)
+  if (diag_info.window_cleaning_alarm_)
   {
     throw DiagnosticInformationException("Window cleaning alarm!");
   }
 
-  if(diag_info.power_supply_problem_)
+  if (diag_info.power_supply_problem_)
   {
     throw DiagnosticInformationException("Power supply problem!");
   }
 
-  if(diag_info.network_problem_)
+  if (diag_info.network_problem_)
   {
     throw DiagnosticInformationException("Network problem!");
   }
 
-  if(diag_info.dust_circuit_failure_)
+  if (diag_info.dust_circuit_failure_)
   {
     throw DiagnosticInformationException("Dust circuit failure!");
   }
 
-  if(diag_info.measure_problem_)
+  if (diag_info.measure_problem_)
   {
     throw DiagnosticInformationException("Measure problem!");
   }
 
-  if(diag_info.incoherence_data_)
+  if (diag_info.incoherence_data_)
   {
     throw DiagnosticInformationException("Incoherence data!");
   }
 
-  if(diag_info.zone_invalid_input_transition_or_integrity_)
+  if (diag_info.zone_invalid_input_transition_or_integrity_)
   {
     throw DiagnosticInformationException("Zone: Invalid Input transition or integrity!");
   }
 
-  if(diag_info.zone_invalid_input_configuration_connection_)
+  if (diag_info.zone_invalid_input_configuration_connection_)
   {
     throw DiagnosticInformationException("Zone: Invalid Input configuration/connection!");
   }
 
-  if(diag_info.window_cleaning_warning_)
+  if (diag_info.window_cleaning_warning_)
   {
     throw DiagnosticInformationException("Window cleaning warning!");
   }
 
-  if(diag_info.internal_communication_problem_)
+  if (diag_info.internal_communication_problem_)
   {
     throw DiagnosticInformationException("Internal communication problem!");
   }
 
-  if(diag_info.generic_error_)
+  if (diag_info.generic_error_)
   {
     throw DiagnosticInformationException("Generic error!");
   }
 
-  if(diag_info.display_communication_problem_)
+  if (diag_info.display_communication_problem_)
   {
     throw DiagnosticInformationException("Display commuication problem!");
   }
 
-  if(diag_info.temperature_measurement_problem_)
+  if (diag_info.temperature_measurement_problem_)
   {
     throw DiagnosticInformationException("Temperature measurement problem!");
   }
 
-  if(diag_info.configuration_error_)
+  if (diag_info.configuration_error_)
   {
     throw DiagnosticInformationException("Configuration error!");
   }
 
-  if(diag_info.out_of_range_error_)
+  if (diag_info.out_of_range_error_)
   {
     throw DiagnosticInformationException("Out of range error!");
   }
 
-  if(diag_info.temperature_range_error_)
+  if (diag_info.temperature_range_error_)
   {
     throw DiagnosticInformationException("Temperature range error!");
   }
@@ -311,7 +306,7 @@ LaserScan Scanner::getCompleteScan()
   LaserScan scan(static_cast<uint8_t>(0), angle_start_, angle_end_);
 
   MonitoringFrame monitoring_frame;
-  bool firstrun=true;
+  bool firstrun = true;
   do
   {
     bool exception_occured = false;
@@ -324,65 +319,68 @@ LaserScan Scanner::getCompleteScan()
         parseFields(monitoring_frame);
         isDiagnosticInformationOk(monitoring_frame.diagnostic_area_.diagnostic_information_);
       }
-      catch(const FetchMonitoringFrameException& e)
+      catch (const FetchMonitoringFrameException& e)
       {
         std::cerr << e.what() << '\n';
         exception_occured = true;
       }
     } while (exception_occured);
 
-    if ( firstrun && MIN_SCAN_ANGLE != monitoring_frame.from_theta_ )
+    if (firstrun && MIN_SCAN_ANGLE != monitoring_frame.from_theta_)
     {
       previous_monitoring_frame_ = monitoring_frame;
       throw CoherentMonitoringFramesException("First Monitoring frame missing!");
     }
 
-    if ( !firstrun && monitoring_frame.from_theta_ < previous_monitoring_frame_.from_theta_ )
+    if (!firstrun && monitoring_frame.from_theta_ < previous_monitoring_frame_.from_theta_)
     {
       previous_monitoring_frame_ = monitoring_frame;
       throw CoherentMonitoringFramesException("New Cycle has begun! Disregard old values!");
     }
 
-    if( monitoring_frame.from_theta_ != MIN_SCAN_ANGLE &&
+    if (monitoring_frame.from_theta_ != MIN_SCAN_ANGLE &&
         previous_monitoring_frame_.resolution_ != monitoring_frame.resolution_)
     {
       previous_monitoring_frame_ = monitoring_frame;
-      throw CoherentMonitoringFramesException("Resolution of new MonitoringFrame doesn't match previous resolution(s)!");
+      throw CoherentMonitoringFramesException(
+          "Resolution of new MonitoringFrame doesn't match previous resolution(s)!");
     }
 
-    if( !firstrun &&
-        (( monitoring_frame.to_theta() != MAX_SCAN_ANGLE &&
-          previous_monitoring_frame_.scan_counter_ != monitoring_frame.scan_counter_ ) ||
-        ( monitoring_frame.to_theta() == MAX_SCAN_ANGLE &&
-          previous_monitoring_frame_.scan_counter_ + 1 != monitoring_frame.scan_counter_ )) )
+    if (!firstrun && ((monitoring_frame.to_theta() != MAX_SCAN_ANGLE &&
+                       previous_monitoring_frame_.scan_counter_ != monitoring_frame.scan_counter_) ||
+                      (monitoring_frame.to_theta() == MAX_SCAN_ANGLE &&
+                       previous_monitoring_frame_.scan_counter_ + 1 != monitoring_frame.scan_counter_)))
     {
       previous_monitoring_frame_ = monitoring_frame;
       throw CoherentMonitoringFramesException("ScanCounter of new MonitoringFrame doesn't match previous ScanCounter!");
     }
 
-    if( MIN_SCAN_ANGLE != monitoring_frame.from_theta_ &&
-        previous_monitoring_frame_.to_theta() != monitoring_frame.from_theta_ )
+    if (MIN_SCAN_ANGLE != monitoring_frame.from_theta_ &&
+        previous_monitoring_frame_.to_theta() != monitoring_frame.from_theta_)
     {
       previous_monitoring_frame_ = monitoring_frame;
-      throw CoherentMonitoringFramesException("Start angle of new MonitoringFrame doesn't match angle of previous MonitoringFrame!");
+      throw CoherentMonitoringFramesException(
+          "Start angle of new MonitoringFrame doesn't match angle of previous MonitoringFrame!");
     }
 
-    uint16_t length = std::min(monitoring_frame.number_of_samples_, MAX_NUMBER_OF_SAMPLES); // TODO: Is Exception. Remove check?
-    scan.measures_.insert( scan.measures_.end(), monitoring_frame.measures_.begin(), monitoring_frame.measures_.begin() + length);
+    uint16_t length = std::min(monitoring_frame.number_of_samples_,
+                               MAX_NUMBER_OF_SAMPLES);  // TODO(gsansone): Is Exception. Remove check?
+    scan.measures_.insert(
+        scan.measures_.end(), monitoring_frame.measures_.begin(), monitoring_frame.measures_.begin() + length);
 
     previous_monitoring_frame_ = monitoring_frame;
-    firstrun = false; //next run is the second run or higher
-  } while(monitoring_frame.to_theta() != MAX_SCAN_ANGLE);
+    firstrun = false;  // next run is the second run or higher
+  } while (monitoring_frame.to_theta() != MAX_SCAN_ANGLE);
   scan.resolution_ = monitoring_frame.resolution_;
 
   auto begin_position = angle_start_ / scan.resolution_;
-  if(begin_position > 0)
+  if (begin_position > 0)
   {
     scan.measures_.erase(scan.measures_.begin(), scan.measures_.begin() + begin_position);
   }
 
   auto end_position = (MAX_SCAN_ANGLE - angle_end_) / scan.resolution_;
-  if(end_position > 0)
+  if (end_position > 0)
   {
     scan.measures_.erase(scan.measures_.end() - end_position, scan.measures_.end());
   }
@@ -390,5 +388,4 @@ LaserScan Scanner::getCompleteScan()
   return scan;
 }
 
-
-}
+}  // namespace psen_scan

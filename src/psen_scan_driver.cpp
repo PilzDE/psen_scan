@@ -22,7 +22,7 @@
 using namespace psen_scan;
 typedef std::unique_ptr<PSENscanUDPInterface> PSENscanUDPptr;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::init(argc, argv, "psen_scan_node");
   ros::NodeHandle pnh("~");
@@ -32,30 +32,21 @@ int main(int argc, char **argv)
     psen_scan::RosParameterHandler param_handler(pnh);
     boost::asio::io_service io_service;
     PSENscanUDPptr udp_interface = PSENscanUDPptr(
-                                    new PSENscanUDPInterface(
-                                      io_service,
-                                      param_handler.getSensorIP(),
-                                      param_handler.getHostUDPPort()
-                                    ));
+        new PSENscanUDPInterface(io_service, param_handler.getSensorIP(), param_handler.getHostUDPPort()));
 
-    std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(
-                                        new Scanner(
-                                          param_handler.getSensorIP(),
-                                          param_handler.getHostIP(),
-                                          param_handler.getHostUDPPort(),
-                                          param_handler.getPassword(),
-                                          param_handler.getAngleStart(),
-                                          param_handler.getAngleEnd(),
-                                          std::move(udp_interface)
-                                        ));
-    ROSScannerNode ros_scanner_node(
-                                    pnh,
+    std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(new Scanner(param_handler.getSensorIP(),
+                                                                            param_handler.getHostIP(),
+                                                                            param_handler.getHostUDPPort(),
+                                                                            param_handler.getPassword(),
+                                                                            param_handler.getAngleStart(),
+                                                                            param_handler.getAngleEnd(),
+                                                                            std::move(udp_interface)));
+    ROSScannerNode ros_scanner_node(pnh,
                                     param_handler.getPublishTopic(),
                                     param_handler.getFrameID(),
                                     param_handler.getSkip(),
                                     param_handler.getXAxisRotation(),
-                                    std::move(scanner)
-                                    );
+                                    std::move(scanner));
     ros_scanner_node.processingLoop();
   }
   catch (PSENScanFatalException& e)

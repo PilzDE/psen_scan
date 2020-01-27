@@ -31,20 +31,19 @@ namespace psen_scan
  * @param skip skip certain number of frames, reduces publish rate
  * @param scanner pointer ot an instance of the class Scanner
  */
-ROSScannerNode::ROSScannerNode ( ros::NodeHandle& nh,
-                                 const std::string& topic,
-                                 const std::string& frame_id,
-                                 const uint16_t& skip,
-                                 const double& x_axis_rotation,
-                                 std::unique_ptr<vScanner> scanner
-                               )
-:nh_(nh),
-frame_id_(frame_id),
-skip_(skip),
-scanner_(std::move(scanner)),
-x_axis_rotation_(x_axis_rotation)
+ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
+                               const std::string& topic,
+                               const std::string& frame_id,
+                               const uint16_t& skip,
+                               const double& x_axis_rotation,
+                               std::unique_ptr<vScanner> scanner)
+  : nh_(nh)
+  , frame_id_(frame_id)
+  , skip_(skip)
+  , scanner_(std::move(scanner))
+  , x_axis_rotation_(x_axis_rotation)
 {
-  if( !scanner_ )
+  if (!scanner_)
   {
     throw PSENScanFatalException("Nullpointer isn't a valid argument!");
   }
@@ -77,16 +76,17 @@ double degToRad(const T& deg)
  */
 sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& laserscan)
 {
-  if( laserscan.resolution_ == 0)
+  if (laserscan.resolution_ == 0)
   {
     throw BuildROSMessageException("Resolution cannot be 0!");
   }
-  if ( laserscan.min_scan_angle_ >= laserscan.max_scan_angle_ )
+  if (laserscan.min_scan_angle_ >= laserscan.max_scan_angle_)
   {
     throw BuildROSMessageException("Attention: Start angle has to be smaller than end angle!");
   }
-  uint16_t expected_size = (laserscan.max_scan_angle_ - laserscan.min_scan_angle_ ) / static_cast<uint16_t>(laserscan.resolution_);
-  if( expected_size != laserscan.measures_.size() )
+  uint16_t expected_size =
+      (laserscan.max_scan_angle_ - laserscan.min_scan_angle_) / static_cast<uint16_t>(laserscan.resolution_);
+  if (expected_size != laserscan.measures_.size())
   {
     throw BuildROSMessageException("Calculated number of scans doesn't match actual number of scans!");
   }
@@ -97,15 +97,17 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
   ros_message.angle_min = degToRad(laserscan.min_scan_angle_ / 10.0 - x_axis_rotation_);
   ros_message.angle_max = degToRad(laserscan.max_scan_angle_ / 10.0 - x_axis_rotation_);
   ros_message.angle_increment = degToRad(laserscan.resolution_ / 10.0);
-  ros_message.time_increment = SCAN_TIME/NUMBER_OF_SAMPLES_FULL_SCAN_MASTER;
+  ros_message.time_increment = SCAN_TIME / NUMBER_OF_SAMPLES_FULL_SCAN_MASTER;
   ros_message.scan_time = SCAN_TIME;
   ros_message.range_min = 0;
   ros_message.range_max = 10;
-  ros_message.ranges.insert(ros_message.ranges.end(), laserscan.measures_.rbegin(), laserscan.measures_.rend()); // reverse order
-  std::transform(ros_message.ranges.begin(), ros_message.ranges.end(), ros_message.ranges.begin(), [](float f){ return f * 0.001; });
+  ros_message.ranges.insert(
+      ros_message.ranges.end(), laserscan.measures_.rbegin(), laserscan.measures_.rend());  // reverse order
+  std::transform(ros_message.ranges.begin(), ros_message.ranges.end(), ros_message.ranges.begin(), [](float f) {
+    return f * 0.001;
+  });
 
   return ros_message;
-
 }
 /**
  * @brief endless loop for processing incoming UDP data from the laser scanner
@@ -121,30 +123,30 @@ void ROSScannerNode::processingLoop()
     try
     {
       LaserScan complete_scan = scanner_->getCompleteScan();
-      if(skip_counter == skip_)
+      if (skip_counter == skip_)
       {
         pub_.publish(buildRosMessage(complete_scan));
       }
     }
-    catch(const CoherentMonitoringFramesException& e)
+    catch (const CoherentMonitoringFramesException& e)
     {
       ROS_WARN_STREAM("Could not build a coherent message: " << e.what() << " Skipping this message.");
     }
-    catch(const ParseMonitoringFrameException& e)
+    catch (const ParseMonitoringFrameException& e)
     {
       ROS_FATAL_STREAM("Fatal error occured: " << e.what());
     }
-    catch(const DiagnosticInformationException& e)
+    catch (const DiagnosticInformationException& e)
     {
       ROS_FATAL_STREAM("Fatal error occured: " << e.what());
-      //throw PSENScanFatalException("");
+      // throw PSENScanFatalException("");
     }
-    catch(const BuildROSMessageException& e)
+    catch (const BuildROSMessageException& e)
     {
       ROS_WARN_STREAM("Could not build ROS message: " << e.what() << " Skipping this message.");
     }
 
-    if(++skip_counter > skip_)
+    if (++skip_counter > skip_)
     {
       skip_counter = 0;
     }
@@ -152,5 +154,4 @@ void ROSScannerNode::processingLoop()
   scanner_->stop();
 }
 
-}
-
+}  // namespace psen_scan

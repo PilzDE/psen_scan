@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(ParseMonitoringFrameExceptionTest, new_parse_monitoring_frame_exception)
 {
   std::string except_str = "ParseMonitoringFrameException";
-  std::unique_ptr<ParseMonitoringFrameException> e( new ParseMonitoringFrameException(except_str));
+  std::unique_ptr<ParseMonitoringFrameException> e(new ParseMonitoringFrameException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

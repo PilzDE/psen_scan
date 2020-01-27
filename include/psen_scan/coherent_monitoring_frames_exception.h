@@ -20,15 +20,14 @@
 
 namespace psen_scan
 {
-
 class CoherentMonitoringFramesException : public std::runtime_error
 {
-  public:
-    CoherentMonitoringFramesException(const std::string& msg)
-    :std::runtime_error(msg)
-    {}
+public:
+  CoherentMonitoringFramesException(const std::string& msg)
+    : std::runtime_error(msg)
+  {
+  }
 };
-
 }
 
-#endif // PSEN_SCAN_COHERENT_MONITORING_FRAMES_EXCEPTION_H
+#endif  // PSEN_SCAN_COHERENT_MONITORING_FRAMES_EXCEPTION_H

@@ -20,15 +20,14 @@
 
 namespace psen_scan
 {
-
 class FetchMonitoringFrameException : public std::runtime_error
 {
-  public:
-    FetchMonitoringFrameException(const std::string& msg)
-    :std::runtime_error(msg)
-    {}
+public:
+  FetchMonitoringFrameException(const std::string& msg)
+    : std::runtime_error(msg)
+  {
+  }
 };
-
 }
 
-#endif // PSEN_SCAN_FETCH_MONITORING_FRAME_EXCEPTION_H
+#endif  // PSEN_SCAN_FETCH_MONITORING_FRAME_EXCEPTION_H

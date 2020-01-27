@@ -46,13 +46,12 @@ uint64_t const START_MONITORING_FIXED_SEQUENCE = 0x0000000100000001;
 uint32_t const STOP_MONITORING_OPCODE = htole32(18);
 
 uint32_t const MONITORING_FRAME_OPCODE = 0xC9; /**< Constant 0xC9. Byte order: little endian */
-uint16_t const MAX_NUMBER_OF_SAMPLES = 550; /**< Maximum number of samples per UDP message from Laserscanner */
-std::size_t const PSEN_SCAN_PORT = 3000; /**< Port on which Laserscanner expects messages */
-uint16_t const MIN_SCAN_ANGLE = 0;    /**< Lowest  scan angle in tenth of degree */
-uint16_t const MAX_SCAN_ANGLE = 2750; /**< Highest scan angle in tenth of degree */
+uint16_t const MAX_NUMBER_OF_SAMPLES = 550;    /**< Maximum number of samples per UDP message from Laserscanner */
+std::size_t const PSEN_SCAN_PORT = 3000;       /**< Port on which Laserscanner expects messages */
+uint16_t const MIN_SCAN_ANGLE = 0;             /**< Lowest  scan angle in tenth of degree */
+uint16_t const MAX_SCAN_ANGLE = 2750;          /**< Highest scan angle in tenth of degree */
 uint16_t const NUMBER_OF_SAMPLES_FULL_SCAN_MASTER = 2750; /**< Number of samples for complete scan for master scanner*/
-double const SCAN_TIME = 0.03; /**< Time per scan in seconds*/
-
+double const SCAN_TIME = 0.03;                            /**< Time per scan in seconds*/
 }
 
-#endif // PSEN_SCAN_SCANNER_PARAMETER_H
+#endif  // PSEN_SCAN_SCANNER_PARAMETER_H

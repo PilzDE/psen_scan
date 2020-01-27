@@ -24,60 +24,57 @@ using boost::asio::ip::udp;
 
 namespace psen_scan_test
 {
-
 /**
  * @brief Class for the UDP communication with the scanner.
  *
  */
 class MockUDPServer
 {
-  public:
-    int block;
-    MockUDPServer(boost::asio::io_service& io_service,
-                        const uint32_t& host_udp_port)
-    :socket_(io_service, udp::endpoint(udp::v4(), host_udp_port))
+public:
+  int block;
+  MockUDPServer(boost::asio::io_service& io_service, const uint32_t& host_udp_port)
+    : socket_(io_service, udp::endpoint(udp::v4(), host_udp_port))
+  {
+    block = 0;
+    start_receive();
+  }
+
+private:
+  void start_receive()
+  {
+    socket_.async_receive_from(boost::asio::buffer(recv_buffer_),
+                               remote_endpoint_,
+                               boost::bind(&MockUDPServer::handle_receive,
+                                           this,
+                                           boost::asio::placeholders::error,
+                                           boost::asio::placeholders::bytes_transferred));
+  }
+
+  void handle_receive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/)
+  {
+    if (!error || error == boost::asio::error::message_size)
     {
-      block=0;
+      if (0 == block)
+      {
+        socket_.async_send_to(boost::asio::buffer(recv_buffer_),
+                              remote_endpoint_,
+                              boost::bind(&MockUDPServer::handle_send,
+                                          this,
+                                          boost::asio::placeholders::error,
+                                          boost::asio::placeholders::bytes_transferred));
+      }
       start_receive();
     }
+  }
 
-  private:
-    void start_receive()
-    {
-      socket_.async_receive_from(
-          boost::asio::buffer(recv_buffer_), remote_endpoint_,
-          boost::bind(&MockUDPServer::handle_receive, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }
+  void handle_send(const boost::system::error_code& /*error*/, std::size_t /*bytes_transferred*/)
+  {
+  }
 
-    void handle_receive(const boost::system::error_code& error,
-        std::size_t /*bytes_transferred*/)
-    {
-      if (!error || error == boost::asio::error::message_size)
-      {
-        if (0 == block)
-        {
-        socket_.async_send_to(
-            boost::asio::buffer(recv_buffer_), remote_endpoint_,
-            boost::bind(&MockUDPServer::handle_send, this,
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred));
-        }
-        start_receive();
-      }
-    }
-
-    void handle_send(const boost::system::error_code& /*error*/,
-        std::size_t /*bytes_transferred*/)
-    {
-    }
-
-    udp::socket socket_; /**< Socket used for communication with Laserscanner. */
-    udp::endpoint remote_endpoint_;
-    boost::array<char, 100> recv_buffer_;
+  udp::socket socket_; /**< Socket used for communication with Laserscanner. */
+  udp::endpoint remote_endpoint_;
+  boost::array<char, 100> recv_buffer_;
 };
-
 }
 
-#endif // PSEN_SCAN_TEST_MOCK_UDP_SERVER_H
+#endif  // PSEN_SCAN_TEST_MOCK_UDP_SERVER_H

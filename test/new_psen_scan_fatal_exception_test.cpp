@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(PSENScanFatalExceptionTest, new_psen_scan_fatal_exception)
 {
   std::string except_str = "PSENScanFatalException";
-  std::unique_ptr<PSENScanFatalException> e( new PSENScanFatalException(except_str));
+  std::unique_ptr<PSENScanFatalException> e(new PSENScanFatalException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

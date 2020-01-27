@@ -20,27 +20,22 @@
 #include <psen_scan/scanner_frames.h>
 #include <psen_scan/scanner_data.h>
 
-namespace psen_scan {
-
+namespace psen_scan
+{
 /**
  * @brief Class to hold the data for one laserscan without depencies to ROS.
  *
  */
 typedef struct LaserScan
 {
-  public:
-    LaserScan(const uint8_t &resolution,
-              const uint16_t &min_scan_angle,
-              const uint16_t &max_scan_angle);
+public:
+  LaserScan(const uint8_t& resolution, const uint16_t& min_scan_angle, const uint16_t& max_scan_angle);
 
-    std::vector<uint16_t> measures_; /**< Measurement data of the laserscan in Millimeters. */
-    uint8_t  resolution_; /**< Distance of angle between the measurements in tenths of degree. */
-    uint16_t const min_scan_angle_; /**< Lowest  Angle the Scanner is scanning in tenths of degree.*/
-    uint16_t const max_scan_angle_; /**< Highest Angle the Scanner is scanning in tenths of degree.*/
+  std::vector<uint16_t> measures_; /**< Measurement data of the laserscan in Millimeters. */
+  uint8_t resolution_;             /**< Distance of angle between the measurements in tenths of degree. */
+  uint16_t const min_scan_angle_;  /**< Lowest  Angle the Scanner is scanning in tenths of degree.*/
+  uint16_t const max_scan_angle_;  /**< Highest Angle the Scanner is scanning in tenths of degree.*/
 } LaserScan;
-
 }
 
-
-
-#endif // PSEN_SCAN_LASERSCAN_H
+#endif  // PSEN_SCAN_LASERSCAN_H

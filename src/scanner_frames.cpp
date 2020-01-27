@@ -20,7 +20,6 @@
 
 namespace psen_scan
 {
-
 /**
  * @brief Construct a new Start Monitoring Frame:: Start Monitoring Frame object
  *
@@ -28,19 +27,21 @@ namespace psen_scan
  * @param host_ip IP-Address the Laserscanner should send to
  * @param host_udp_port UDP-Port the Laserscanner should send to
  */
-StartMonitoringFrame::StartMonitoringFrame(const std::string& password = "", const uint32_t& host_ip = 0, const uint32_t& host_udp_port = 0)
-:RESERVED_(0),
-password_(""),
-OPCODE_(START_MONITORING_OPCODE),
-host_ip_(host_ip),
-host_udp_port_(host_udp_port),
-FIXED_SEQUENCE_(START_MONITORING_FIXED_SEQUENCE),
-RESERVED2_({0})
+StartMonitoringFrame::StartMonitoringFrame(const std::string& password,
+                                           const uint32_t& host_ip,
+                                           const uint32_t& host_udp_port)
+  : RESERVED_(0)
+  , password_("")
+  , OPCODE_(START_MONITORING_OPCODE)
+  , host_ip_(host_ip)
+  , host_udp_port_(host_udp_port)
+  , FIXED_SEQUENCE_(START_MONITORING_FIXED_SEQUENCE)
+  , RESERVED2_({ 0 })
 {
-  strcpy(password_, password.c_str());
+  strncpy(password_, password.c_str(), sizeof(password_));
 
   boost::crc_32_type result;
-  result.process_bytes(&RESERVED_, sizeof(StartMonitoringFrame)-sizeof(crc_));
+  result.process_bytes(&RESERVED_, sizeof(StartMonitoringFrame) - sizeof(crc_));
   crc_ = result.checksum();
 }
 
@@ -49,16 +50,16 @@ RESERVED2_({0})
  *
  * @param password Password for Laserscanner
  */
-StopMonitoringFrame::StopMonitoringFrame(const std::string& password = "")
-:RESERVED_(0),
-password_(""),
-OPCODE_(STOP_MONITORING_OPCODE)
+StopMonitoringFrame::StopMonitoringFrame(const std::string& password)
+  : RESERVED_(0)
+  , password_("")
+  , OPCODE_(STOP_MONITORING_OPCODE)
 {
-  strcpy(password_, password.c_str());
+  strncpy(password_, password.c_str(), sizeof(password_));
 
   boost::crc_32_type result;
-  result.process_bytes(&RESERVED_, sizeof(StopMonitoringFrame)-sizeof(crc_));
+  result.process_bytes(&RESERVED_, sizeof(StopMonitoringFrame) - sizeof(crc_));
   crc_ = result.checksum();
 }
 
-}
+}  // namespace psen_scan

@@ -20,14 +20,12 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(GetROSParameterExceptionTest, new_get_ros_parameter_exception)
 {
   std::string except_str = "GetROSParameterException";
   std::string except_key = "param_key";
-  std::unique_ptr<GetROSParameterException> e( new GetROSParameterException(except_str, except_key));
+  std::unique_ptr<GetROSParameterException> e(new GetROSParameterException(except_str, except_key));
   EXPECT_EQ(except_str, e->what());
   EXPECT_EQ(except_key, e->getKey());
 }
-
 }

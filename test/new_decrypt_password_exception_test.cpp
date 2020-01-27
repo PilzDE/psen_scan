@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(DecryptPasswordExceptionTest, new_build_ros_message_exception)
 {
   std::string except_str = "DecryptPasswordException";
-  std::unique_ptr<DecryptPasswordException> e( new DecryptPasswordException(except_str));
+  std::unique_ptr<DecryptPasswordException> e(new DecryptPasswordException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

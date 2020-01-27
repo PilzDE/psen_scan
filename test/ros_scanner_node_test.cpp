@@ -31,38 +31,37 @@ using ::testing::Throw;
 
 namespace psen_scan_test
 {
-
 class ros_scanner_node_test : public ::testing::Test
 {
-  protected:
-    void SetUp() override
-    {
-      node1_Scanner_test = std::unique_ptr<MockScanner>(new MockScanner());
-      laser_scan_fake = new LaserScan(1,1,2);
-      laser_scan_fake->measures_.push_back(1);
-      laser_scan_error_1 = new LaserScan(1,1,2);
-      laser_scan_error_1->measures_.push_back(1);
-      laser_scan_error_1->measures_.push_back(2);
-      laser_scan_error_2 = new LaserScan(0,1,2);
-      laser_scan_error_2->measures_.push_back(1);
-      laser_scan_error_3 = new LaserScan(10,2,1);
-      laser_scan_error_3->measures_.push_back(1);
-    }
+protected:
+  void SetUp() override
+  {
+    node1_Scanner_test = std::unique_ptr<MockScanner>(new MockScanner());
+    laser_scan_fake = new LaserScan(1, 1, 2);
+    laser_scan_fake->measures_.push_back(1);
+    laser_scan_error_1 = new LaserScan(1, 1, 2);
+    laser_scan_error_1->measures_.push_back(1);
+    laser_scan_error_1->measures_.push_back(2);
+    laser_scan_error_2 = new LaserScan(0, 1, 2);
+    laser_scan_error_2->measures_.push_back(1);
+    laser_scan_error_3 = new LaserScan(10, 2, 1);
+    laser_scan_error_3->measures_.push_back(1);
+  }
 
-    void TearDown() override
-    {
-      delete laser_scan_fake;
-      delete laser_scan_error_1;
-      delete laser_scan_error_2;
-      delete laser_scan_error_3;
-    }
+  void TearDown() override
+  {
+    delete laser_scan_fake;
+    delete laser_scan_error_1;
+    delete laser_scan_error_2;
+    delete laser_scan_error_3;
+  }
 
-    ros::NodeHandle node1_nh_test;
-    std::unique_ptr<MockScanner> node1_Scanner_test;
-    LaserScan      *laser_scan_fake;
-    LaserScan      *laser_scan_error_1;
-    LaserScan      *laser_scan_error_2;
-    LaserScan      *laser_scan_error_3;
+  ros::NodeHandle node1_nh_test;
+  std::unique_ptr<MockScanner> node1_Scanner_test;
+  LaserScan* laser_scan_fake;
+  LaserScan* laser_scan_error_1;
+  LaserScan* laser_scan_error_2;
+  LaserScan* laser_scan_error_3;
 };
 
 ACTION(ROS_SHUTDOWN)
@@ -73,73 +72,63 @@ ACTION(ROS_SHUTDOWN)
 
 class TestSubscriber
 {
-  public:
-    TestSubscriber(const ros::NodeHandle& nh, const std::string& topic)
-    :receivedMessage_(0),
-    ready_(false),
-    nh_(nh)
-    {
-      sub_ = nh_.subscribe(topic, 1000, &TestSubscriber::callback, this, ros::TransportHints().reliable()
-                                                                                              .tcp()
-                                                                                              .tcpNoDelay()
-                                                                                              .udp()
-                                                                                              .unreliable());
-    }
+public:
+  TestSubscriber(const ros::NodeHandle& nh, const std::string& topic)
+    : receivedMessage_(0)
+    , ready_(false)
+    , nh_(nh)
+  {
+    sub_ = nh_.subscribe(topic,
+                         1000,
+                         &TestSubscriber::callback,
+                         this,
+                         ros::TransportHints().reliable().tcp().tcpNoDelay().udp().unreliable());
+  }
 
-    void spin()
+  void spin()
+  {
+    while (sub_.getNumPublishers() < 1)
     {
-      while(sub_.getNumPublishers() < 1)
-      {
-        ros::spinOnce();
-      }
-      ready_ = true;
-      ros::spin();
+      ros::spinOnce();
     }
+    ready_ = true;
+    ros::spin();
+  }
 
-    void callback(const sensor_msgs::LaserScan::ConstPtr &newMessage)
-    {
-      receivedMessage_++;
-      message_ = *newMessage;
-    }
+  void callback(const sensor_msgs::LaserScan::ConstPtr& newMessage)
+  {
+    receivedMessage_++;
+    message_ = *newMessage;
+  }
 
-    int receivedMessage_;
-    bool ready_;
-    sensor_msgs::LaserScan message_;
-    ros::Subscriber sub_;
-    ros::NodeHandle nh_;
+  int receivedMessage_;
+  bool ready_;
+  sensor_msgs::LaserScan message_;
+  ros::Subscriber sub_;
+  ros::NodeHandle nh_;
 };
 
 TEST_F(ros_scanner_node_test, processingLoop_skip_eq_zero)
 {
-  EXPECT_CALL( *(node1_Scanner_test), start())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), start()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), stop())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), stop()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(1)
-    .WillOnce
-    (
-      DoAll
-      (
-        ROS_SHUTDOWN(),
-        Return(*laser_scan_fake)
-      )
-    );
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(1)
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(504)
-    .WillRepeatedly(Return(*laser_scan_fake))
-    .RetiresOnSaturation();
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(504)
+      .WillRepeatedly(Return(*laser_scan_fake))
+      .RetiresOnSaturation();
 
-  ROSScannerNode ros_scanner_node(
-                    node1_nh_test,
-                    "node1_topic",
-                    "node1_frame",
-                                0, //every frame
-                            137.5,
-    std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(node1_nh_test,
+                                  "node1_topic",
+                                  "node1_frame",
+                                  0,  // every frame
+                                  137.5,
+                                  std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
   ros::AsyncSpinner spinner(1);
@@ -155,35 +144,25 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_zero)
 TEST_F(ros_scanner_node_test, processingLoop_skip_eq_one)
 {
   ros::start();
-  EXPECT_CALL( *(node1_Scanner_test), start())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), start()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), stop())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), stop()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(1)
-    .WillOnce
-    (
-      DoAll
-      (
-        ROS_SHUTDOWN(),
-        Return(*laser_scan_fake)
-      )
-    );
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(1)
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(504)
-    .WillRepeatedly(Return(*laser_scan_fake))
-    .RetiresOnSaturation();
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(504)
+      .WillRepeatedly(Return(*laser_scan_fake))
+      .RetiresOnSaturation();
 
-  ROSScannerNode ros_scanner_node(
-                    node1_nh_test,
-                    "node1_topic",
-                    "node1_frame",
-                                1, //every other frame
-                            137.5,
-    std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(node1_nh_test,
+                                  "node1_topic",
+                                  "node1_frame",
+                                  1,  // every other frame
+                                  137.5,
+                                  std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
   ros::AsyncSpinner spinner(1);
@@ -198,35 +177,25 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_one)
 TEST_F(ros_scanner_node_test, processingLoop_skip_eq_99)
 {
   ros::start();
-  EXPECT_CALL( *(node1_Scanner_test), start())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), start()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), stop())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), stop()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(1)
-    .WillOnce
-    (
-      DoAll
-      (
-        ROS_SHUTDOWN(),
-        Return(*laser_scan_fake)
-      )
-    );
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(1)
+      .WillOnce(DoAll(ROS_SHUTDOWN(), Return(*laser_scan_fake)));
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(504)
-    .WillRepeatedly(Return(*laser_scan_fake))
-    .RetiresOnSaturation();
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(504)
+      .WillRepeatedly(Return(*laser_scan_fake))
+      .RetiresOnSaturation();
 
-  ROSScannerNode ros_scanner_node(
-                    node1_nh_test,
-                    "node1_topic",
-                    "node1_frame",
-                                99, //every hundredth frame
-                             137.5,
-    std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(node1_nh_test,
+                                  "node1_topic",
+                                  "node1_frame",
+                                  99,  // every hundredth frame
+                                  137.5,
+                                  std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
   ros::AsyncSpinner spinner(1);
@@ -241,24 +210,17 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_99)
 TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
 {
   ros::start();
-  EXPECT_CALL( *(node1_Scanner_test), start())
-    .Times(1);
+  EXPECT_CALL(*(node1_Scanner_test), start()).Times(1);
 
-  EXPECT_CALL( *(node1_Scanner_test), getCompleteScan())
-    .Times(5)
-    .WillOnce(Throw(CoherentMonitoringFramesException("")))
-    .WillOnce(Throw(ParseMonitoringFrameException("")))
-    .WillOnce(Throw(DiagnosticInformationException("")))
-    .WillOnce(Throw(BuildROSMessageException("")))
-    .WillOnce(Throw(FetchMonitoringFrameException("")));
+  EXPECT_CALL(*(node1_Scanner_test), getCompleteScan())
+      .Times(5)
+      .WillOnce(Throw(CoherentMonitoringFramesException("")))
+      .WillOnce(Throw(ParseMonitoringFrameException("")))
+      .WillOnce(Throw(DiagnosticInformationException("")))
+      .WillOnce(Throw(BuildROSMessageException("")))
+      .WillOnce(Throw(FetchMonitoringFrameException("")));
 
-  ROSScannerNode ros_scanner_node(
-                    node1_nh_test,
-                    "node1_topic",
-                    "node1_frame",
-                                0,
-                            137.5,
-    std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(node1_nh_test, "node1_topic", "node1_frame", 0, 137.5, std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
   ros::AsyncSpinner spinner(1);
@@ -272,13 +234,7 @@ TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
 
 TEST_F(ros_scanner_node_test, buildROSMessage)
 {
-  ROSScannerNode ros_scanner_node(
-                    node1_nh_test,
-                    "node1_topic",
-                    "node1_frame",
-                                0,
-                             137.5,
-    std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(node1_nh_test, "node1_topic", "node1_frame", 0, 137.5, std::move(node1_Scanner_test));
 
   ros_scanner_node.buildRosMessage(*laser_scan_fake);
   EXPECT_THROW(ros_scanner_node.buildRosMessage(*laser_scan_error_1), BuildROSMessageException);
@@ -288,31 +244,24 @@ TEST_F(ros_scanner_node_test, buildROSMessage)
 
 TEST_F(ros_scanner_node_test, constructor)
 {
-  EXPECT_THROW
-  (
-    new ROSScannerNode
-    (
-      node1_nh_test,
-      "node1_topic",
-      "node1_frame",
-      0,
-      137.5,
-      nullptr // This throws exception
-    ),
-    PSENScanFatalException
-  );
+  EXPECT_THROW(new ROSScannerNode(node1_nh_test,
+                                  "node1_topic",
+                                  "node1_frame",
+                                  0,
+                                  137.5,
+                                  nullptr  // This throws exception
+                                  ),
+               PSENScanFatalException);
 }
-
 }
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "ros_scanner_node_test");
-  ros::NodeHandle nh; // keep one nh to avoid
+  ros::NodeHandle nh;  // keep one nh to avoid
   testing::InitGoogleTest(&argc, argv);
 
   int ret = RUN_ALL_TESTS();
   ros::shutdown();
   return ret;
 }
-

@@ -27,11 +27,12 @@ namespace psen_scan
  * @param host_udp_port UDP Port to receive the data from the scanner
  */
 
-PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service, const std::string& scanner_ip, const uint32_t& host_udp_port)
-:socket_(io_service, udp::endpoint(udp::v4(), host_udp_port)),
-udp_endpoint_write_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT)
+PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service,
+                                           const std::string& scanner_ip,
+                                           const uint32_t& host_udp_port)
+  : socket_(io_service, udp::endpoint(udp::v4(), host_udp_port))
+  , udp_endpoint_write_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT)
 {
-
 }
 
 /**
@@ -40,7 +41,7 @@ udp_endpoint_write_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_S
  * @param buffer Boost send buffer class.
  */
 
-void PSENscanUDPInterface::write( const boost::asio::mutable_buffers_1& buffer )
+void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
 {
   socket_.send_to(buffer, udp_endpoint_write_);
 }
@@ -54,27 +55,29 @@ void PSENscanUDPInterface::write( const boost::asio::mutable_buffers_1& buffer )
  * @throws UDPReadTimeoutException
  */
 
-std::size_t PSENscanUDPInterface::read( boost::asio::mutable_buffers_1& buffer )
+std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
 {
-  static int duration_counter=1;
+  static int duration_counter = 1;
   typedef boost::chrono::system_clock Clock;
-  typedef boost::chrono::duration<long, boost::ratio<1>> Second;
+  typedef boost::chrono::duration<int64_t, boost::ratio<1>> Second;
   Clock::time_point t1 = Clock::now();
   Clock::duration d = Clock::now() - t1;
   while (0 == socket_.available())
   {
-     d = Clock::now() - t1;
-     Second s(duration_counter);
-     if (d > s)
-     {
-       if (60 > duration_counter) duration_counter += 10;
-       throw UDPReadTimeoutException("Could not receive UDP packet.");
-     }
+    d = Clock::now() - t1;
+    Second s(duration_counter);
+    if (d > s)
+    {
+      if (60 > duration_counter)
+      {
+        duration_counter += 10;
+      }
+      throw UDPReadTimeoutException("Could not receive UDP packet.");
+    }
   };
   duration_counter = 1;
   return socket_.receive_from(buffer, udp_endpoint_read_);
 }
-
 
 /**
  * @brief Get the Udp Endpoint object for reading
@@ -86,4 +89,4 @@ udp::endpoint PSENscanUDPInterface::getUdpEndpointRead()
   return udp_endpoint_read_;
 };
 
-}
+}  // namespace psen_scan

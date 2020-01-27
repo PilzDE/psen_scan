@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(DiagnosticInformationExceptionTest, new_diagnostic_information_exception)
 {
   std::string except_str = "DiagnosticInformationException";
-  std::unique_ptr<DiagnosticInformationException> e( new DiagnosticInformationException(except_str));
+  std::unique_ptr<DiagnosticInformationException> e(new DiagnosticInformationException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

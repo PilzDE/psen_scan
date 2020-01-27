@@ -21,19 +21,15 @@
 
 namespace psen_scan_test
 {
-
 class MockScanner : public psen_scan::vScanner
 {
-  public:
+public:
+  MOCK_METHOD0(start, void());
+  MOCK_METHOD0(stop, void());
+  MOCK_METHOD0(getCompleteScan, psen_scan::LaserScan());
 
-    MOCK_METHOD0(start, void () );
-    MOCK_METHOD0(stop , void () );
-    MOCK_METHOD0(getCompleteScan, psen_scan::LaserScan () );
-
-  private:
-
+private:
 };
-
 }
 
-#endif // PSEN_SCAN_TEST_MOCK_SCANNER_H
+#endif  // PSEN_SCAN_TEST_MOCK_SCANNER_H

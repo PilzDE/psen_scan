@@ -23,15 +23,14 @@ using boost::asio::ip::udp;
 
 namespace psen_scan
 {
-
 // LCOV_EXCL_START
 class UDPInterface
 {
-  public:
-    virtual ~UDPInterface() = default;
-    virtual void write( const boost::asio::mutable_buffers_1& buffer ) = 0;
-    virtual std::size_t read( boost::asio::mutable_buffers_1& buffer ) = 0;
-    virtual udp::endpoint getUdpEndpointRead() = 0;
+public:
+  virtual ~UDPInterface() = default;
+  virtual void write(const boost::asio::mutable_buffers_1& buffer) = 0;
+  virtual std::size_t read(boost::asio::mutable_buffers_1& buffer) = 0;
+  virtual udp::endpoint getUdpEndpointRead() = 0;
 };
 // LCOV_EXCL_STOP
 
@@ -41,20 +40,19 @@ class UDPInterface
  */
 class PSENscanUDPInterface : public UDPInterface
 {
-  public:
-    PSENscanUDPInterface(boost::asio::io_service& io_service,
-                        const std::string& scanner_ip,
-                        const uint32_t& host_udp_port);
-    void write( const boost::asio::mutable_buffers_1& buffer );
-    std::size_t read( boost::asio::mutable_buffers_1& buffer );
-    udp::endpoint getUdpEndpointRead();
+public:
+  PSENscanUDPInterface(boost::asio::io_service& io_service,
+                       const std::string& scanner_ip,
+                       const uint32_t& host_udp_port);
+  void write(const boost::asio::mutable_buffers_1& buffer);
+  std::size_t read(boost::asio::mutable_buffers_1& buffer);
+  udp::endpoint getUdpEndpointRead();
 
-  private:
-    udp::socket socket_; /**< Socket used for communication with Laserscanner. */
-    udp::endpoint udp_endpoint_read_;  /**< Endpoint is Laserscanner. */
-    udp::endpoint udp_endpoint_write_; /**< Endpoint is the host computer. */
+private:
+  udp::socket socket_;               /**< Socket used for communication with Laserscanner. */
+  udp::endpoint udp_endpoint_read_;  /**< Endpoint is Laserscanner. */
+  udp::endpoint udp_endpoint_write_; /**< Endpoint is the host computer. */
 };
-
 }
 
-#endif // PSEN_SCAN_UDP_INTERFACE_H
+#endif  // PSEN_SCAN_UDP_INTERFACE_H

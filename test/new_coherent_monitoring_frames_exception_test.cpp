@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(CoherentMonitoringFramesExceptionTest, new_coherent_monitoring_frames_exception)
 {
   std::string except_str = "CoherentMonitoringFramesException";
-  std::unique_ptr<CoherentMonitoringFramesException> e( new CoherentMonitoringFramesException(except_str));
+  std::unique_ptr<CoherentMonitoringFramesException> e(new CoherentMonitoringFramesException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

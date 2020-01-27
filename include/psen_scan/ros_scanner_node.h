@@ -23,34 +23,30 @@
 
 namespace psen_scan
 {
-
 /**
  * @brief Class implements a ROS-Node for the PSENscan safety laser scanner
  *
  */
 class ROSScannerNode
 {
-  public:
-    ROSScannerNode (
-                     ros::NodeHandle& nh,
-                     const std::string& topic,
-                     const std::string& frame_id,
-                     const uint16_t& skip,
-                     const double& x_axis_rotation,
-                     std::unique_ptr<vScanner> scanner
-                   );
-    sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
-    void processingLoop();
+public:
+  ROSScannerNode(ros::NodeHandle& nh,
+                 const std::string& topic,
+                 const std::string& frame_id,
+                 const uint16_t& skip,
+                 const double& x_axis_rotation,
+                 std::unique_ptr<vScanner> scanner);
+  sensor_msgs::LaserScan buildRosMessage(const LaserScan& laserscan);
+  void processingLoop();
 
-  private:
-    ros::NodeHandle nh_;               /**< ROS Node handler*/
-    ros::Publisher pub_;               /**< ROS message publisher*/
-    std::string frame_id_;             /**< Defines the name of the frame_id. Default is scanner.*/
-    uint16_t skip_;                    /**< Skip certain number of frames. Reduces publish rate. */
-    std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
-    double  x_axis_rotation_;           /**< X-axis rotation.*/
+private:
+  ros::NodeHandle nh_;                /**< ROS Node handler*/
+  ros::Publisher pub_;                /**< ROS message publisher*/
+  std::string frame_id_;              /**< Defines the name of the frame_id. Default is scanner.*/
+  uint16_t skip_;                     /**< Skip certain number of frames. Reduces publish rate. */
+  std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
+  double x_axis_rotation_;            /**< X-axis rotation.*/
 };
-
 }
 
-#endif // PSEN_SCAN_ROS_SCANNER_NODE_H
+#endif  // PSEN_SCAN_ROS_SCANNER_NODE_H

@@ -20,12 +20,10 @@ using namespace psen_scan;
 
 namespace psen_scan_test
 {
-
 TEST(BuildROSMessageExceptionTest, new_build_ros_message_exception)
 {
   std::string except_str = "BuildROSMessageException";
-  std::unique_ptr<BuildROSMessageException> e( new BuildROSMessageException(except_str));
+  std::unique_ptr<BuildROSMessageException> e(new BuildROSMessageException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-
 }

@@ -23,7 +23,6 @@
 
 namespace psen_scan
 {
-
 /**
  * @brief Construct a new Ros Parameter Handler:: Ros Parameter Handler object
  *
@@ -34,77 +33,77 @@ namespace psen_scan
  * @throws PSENScanFatalException
  */
 RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
-:nh_(nh),
-frame_id_("scanner"),
-skip_(0),
-angle_start_(0),
-angle_end_(2750),
-x_axis_rotation_(default_x_axis_rotation),
-publish_topic_("scan")
+  : nh_(nh)
+  , frame_id_("scanner")
+  , skip_(0)
+  , angle_start_(0)
+  , angle_end_(2750)
+  , x_axis_rotation_(default_x_axis_rotation)
+  , publish_topic_("scan")
 {
   try
   {
     // required parameters first
-    int host_udp_port   = getParamFromNh<int>(nh_, "host_udp_port");
+    int host_udp_port = getParamFromNh<int>(nh_, "host_udp_port");
 
-    if ( host_udp_port < 0 )
+    if (host_udp_port < 0)
     {
       throw PSENScanFatalException("Parameter host_udp_port may not be negative!");
     }
 
-    password_           = getParamFromNh<std::string>(nh_, "password");
+    password_ = getParamFromNh<std::string>(nh_, "password");
 
     try
     {
       password_ = decryptPassword(password_);
     }
-    catch(const DecryptPasswordException& e)
+    catch (const DecryptPasswordException& e)
     {
       throw PSENScanFatalException("Invalid Password: " + std::string(e.what()));
     }
 
-    host_udp_port_      = htole32(static_cast<uint32_t>(host_udp_port));
+    host_udp_port_ = htole32(static_cast<uint32_t>(host_udp_port));
     std::string host_ip = getParamFromNh<std::string>(nh_, "host_ip");
-    host_ip_            = htobe32(inet_network(host_ip.c_str()));
-    sensor_ip_          = getParamFromNh<std::string>(nh_, "sensor_ip");
+    host_ip_ = htobe32(inet_network(host_ip.c_str()));
+    sensor_ip_ = getParamFromNh<std::string>(nh_, "sensor_ip");
 
     // non-required parameters last
-    float angle_start = getParamFromNh<float>(nh_, "angle_start") * 10; // Convert to tenths of degree
-    if ( angle_start < 0 )
+    float angle_start = getParamFromNh<float>(nh_, "angle_start") * 10;  // Convert to tenths of degree
+    if (angle_start < 0)
     {
       throw PSENScanFatalException("Parameter angle_start may not be negative!");
     }
     angle_start_ = static_cast<uint16_t>(angle_start);
 
-    float angle_end = getParamFromNh<float>(nh_, "angle_end") * 10; // Convert to tenths of degree
-    if ( angle_end < 0 )
+    float angle_end = getParamFromNh<float>(nh_, "angle_end") * 10;  // Convert to tenths of degree
+    if (angle_end < 0)
     {
       throw PSENScanFatalException("Parameter angle_end may not be negative!");
     }
     angle_end_ = static_cast<uint16_t>(angle_end);
 
-    x_axis_rotation_    = getParamFromNh<double>(nh_, "x_axis_rotation");
+    x_axis_rotation_ = getParamFromNh<double>(nh_, "x_axis_rotation");
     if ((x_axis_rotation_ > max_x_axis_rotation) || (x_axis_rotation_ < min_x_axis_rotation))
     {
       throw PSENScanFatalException("Parameter x_axis_rotation is out of range. [-360.0 .. 360.0]");
     }
 
     int skip = getParamFromNh<int>(nh_, "skip");
-    if ( skip < 0 )
+    if (skip < 0)
     {
       throw PSENScanFatalException("Parameter skip may not be negative!");
     }
     skip_ = static_cast<uint16_t>(skip);
 
-    frame_id_           = getParamFromNh<std::string>(nh_, "frame_id");
-    publish_topic_      = getParamFromNh<std::string>(nh_, "publish_topic");
+    frame_id_ = getParamFromNh<std::string>(nh_, "frame_id");
+    publish_topic_ = getParamFromNh<std::string>(nh_, "publish_topic");
   }
-  catch(const GetROSParameterException& e)
+  catch (const GetROSParameterException& e)
   {
     ROS_WARN_STREAM(e.what());
     bool required = ROS_PARAMETER.find(e.getKey())->second;
 
-    if( required )
+    if (required)
     {
       ROS_FATAL("Cannot proceed with default configuration.");
       throw PSENScanFatalException("Reading of required parameter failed!");
@@ -114,7 +113,6 @@ publish_topic_("scan")
       ROS_WARN_STREAM("Proceeding with default configuration.");
     }
   }
-
 }
 
 /**
@@ -154,7 +152,7 @@ uint32_t RosParameterHandler::getHostUDPPort() const
  */
 std::string RosParameterHandler::getSensorIP() const
 {
-    return sensor_ip_;
+  return sensor_ip_;
 }
 
 /**
@@ -227,11 +225,11 @@ std::string RosParameterHandler::getPublishTopic() const
  *
  * @throws GetROSParameterException
  */
-template<class T>
+template <class T>
 T RosParameterHandler::getParamFromNh(const ros::NodeHandle& nh, const std::string& key) const
 {
   T ret;
-  if(!nh.getParam(key, ret))
+  if (!nh.getParam(key, ret))
   {
     throw GetROSParameterException("Parameter " + key + " doesn't exist on Parameter Server.", key);
   }
@@ -248,51 +246,44 @@ T RosParameterHandler::getParamFromNh(const ros::NodeHandle& nh, const std::stri
  */
 std::string RosParameterHandler::decryptPassword(const std::string& encrypted_password)
 {
-  const int ENCRYPTED_CHAR_LEN = 2;
-  const int ENCRYPTED_CHAR_BASE = 16;
-  const int ADDITION_COEFF = 100; // arbitrary
-  const int NUMBER_OF_ASCII_CHARS = 256;
-  const int ENCRYPTION_XOR_KEY = 0xCD; // arbitrary
+  const int encrypted_char_len = 2;
+  const int encrypted_char_base = 16;
+  const int addition_coeff = 100;  // arbitrary
+  const int number_of_ascii_chars = 256;
+  const int encryption_xor_key = 0xCD;  // arbitrary
 
   std::string decrypted_password = "";
 
   std::string encrypted_pw_temp = encrypted_password;
 
-  encrypted_pw_temp.erase
-  (
-    std::remove
-    (
-      encrypted_pw_temp.begin(), encrypted_pw_temp.end(), ' '
-    ), encrypted_pw_temp.end()
-  );
+  encrypted_pw_temp.erase(std::remove(encrypted_pw_temp.begin(), encrypted_pw_temp.end(), ' '),
+                          encrypted_pw_temp.end());
 
-  if(encrypted_pw_temp.length() % 2 != 0)
+  if (encrypted_pw_temp.length() % 2 != 0)
   {
     throw DecryptPasswordException("Password length must be even!");
   }
 
-  for(unsigned int i = 0; i < encrypted_pw_temp.length(); i += ENCRYPTED_CHAR_LEN)
+  for (unsigned int i = 0; i < encrypted_pw_temp.length(); i += encrypted_char_len)
   {
     char c;
     try
     {
-      c =  (
-                  std::stoi
-                  (
-                    encrypted_pw_temp.substr(i, ENCRYPTED_CHAR_LEN), nullptr, ENCRYPTED_CHAR_BASE
-                  ) - i * ADDITION_COEFF / ENCRYPTED_CHAR_LEN
-                ) % NUMBER_OF_ASCII_CHARS ^ ENCRYPTION_XOR_KEY;
+      c = (std::stoi(encrypted_pw_temp.substr(i, encrypted_char_len), nullptr, encrypted_char_base) -
+           i * addition_coeff / encrypted_char_len) %
+              number_of_ascii_chars ^
+          encryption_xor_key;
     }
-    catch(const std::invalid_argument& e)
+    catch (const std::invalid_argument& e)
     {
       throw DecryptPasswordException(e.what());
     }
-    catch(const std::out_of_range& e)
+    catch (const std::out_of_range& e)
     {
       throw DecryptPasswordException(e.what());
     }
 
-    if(c < 32)
+    if (c < 32)
     {
       throw DecryptPasswordException("Control characters not allowed!");
     }
@@ -303,4 +294,4 @@ std::string RosParameterHandler::decryptPassword(const std::string& encrypted_pa
   return decrypted_password;
 }
 
-}
+}  // namespace psen_scan
