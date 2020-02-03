@@ -253,8 +253,6 @@ TEST_F(ScannerTest, getCompleteScan_ideal)
       .READ_FRAME(4)
       .READ_FRAME(5);
 
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
-
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
   LaserScan scan = scanner.getCompleteScan();
@@ -270,8 +268,6 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_middle)
 {
   EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(2)).READ_FRAME(0).READ_FRAME(2);
 
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
-
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
   ASSERT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
@@ -280,8 +276,6 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_middle)
 TEST_F(ScannerTest, getCompleteScan_missing_frame_first)
 {
   EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(1)).READ_FRAME(1);
-
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
 
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
@@ -299,8 +293,6 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_last)
       .READ_FRAME(4)
       .READ_FRAME(0);
 
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
-
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
   ASSERT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
@@ -316,8 +308,6 @@ TEST_F(ScannerTest, getCompleteScan_correct_return_value)
       .READ_FRAME(3)
       .READ_FRAME(4)
       .READ_FRAME(5);
-
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
 
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 90, 300, std::move(udp_interface_ptr));
 
@@ -395,8 +385,6 @@ TEST_F(ScannerTest, testParseMonitoringFrameException)
       .READ_FRAME(8)
       .READ_FRAME(9);
 
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
-
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), ParseMonitoringFrameException);
@@ -429,8 +417,6 @@ TEST_F(ScannerTest, testDiagnosticInformationException)
       .READ_FRAME(27)
       .READ_FRAME(28)
       .READ_FRAME(29);
-
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
 
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
@@ -466,8 +452,6 @@ TEST_F(ScannerTest, testCoherentMonitoringFramesException)
       .READ_FRAME(33)
       .READ_FRAME(34);
 
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead()).Times(AtLeast(1)).WillRepeatedly(RETURN_IP("1.2.3.4"));
-
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
@@ -485,11 +469,6 @@ TEST_F(ScannerTest, testFetchMonitoringFrameException)
       .WillOnce(DoAll(fillArg0(expected_monitoring_frames_.at(1)), Return(sizeof(MonitoringFrame) - 1)))
       .WillOnce(Throw(UDPReadTimeoutException("Exception!")))
       .READ_FRAME(2);
-
-  EXPECT_CALL(*udp_interface_ptr, getUdpEndpointRead())
-      .Times(3)
-      .WillOnce(RETURN_IP("1.2.3.5"))
-      .WillRepeatedly(RETURN_IP("1.2.3.4"));
 
   Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
 

@@ -27,32 +27,29 @@ namespace psen_scan_test
 TEST(PSENscanUDPInterfaceTest, test_all)
 {
   boost::asio::io_service io_service_1, io_service_2;
-  uint32_t mock_udp_port = 3000;
   uint32_t udp_port = 55000;
   std::string ip_addr = "127.0.0.1";
-  udp::endpoint mock_endpoint(boost::asio::ip::address_v4::from_string(ip_addr), mock_udp_port);
+  udp::endpoint mock_endpoint_write(boost::asio::ip::address_v4::from_string(ip_addr), PSEN_SCAN_PORT_WRITE);
+  udp::endpoint mock_endpoint_read(boost::asio::ip::address_v4::from_string(ip_addr), PSEN_SCAN_PORT_READ);
 
-  MockUDPServer mock_udp_server(io_service_1, mock_udp_port);
+  MockUDPServer mock_udp_server(io_service_1);
 
   boost::thread thrd(boost::bind(&boost::asio::io_service::run, &io_service_1));
 
   std::unique_ptr<PSENscanUDPInterface> udp_interface =
       std::unique_ptr<PSENscanUDPInterface>(new PSENscanUDPInterface(io_service_2, ip_addr, udp_port));
 
+  ASSERT_EQ(mock_endpoint_write, udp_interface->getUdpWriteEndpoint());
+  ASSERT_EQ(mock_endpoint_read, udp_interface->getUdpReadEndpoint());
+
   boost::array<char, 10> write_buf = { "Hello!" };
   boost::array<char, 10> read_buf;
+
   udp_interface->write(boost::asio::buffer(write_buf));
-
   auto temp = boost::asio::buffer(read_buf);
-  unsigned int counter = 0;
-  do
-  {
-    ASSERT_EQ(sizeof(write_buf), udp_interface->read(temp));
-    counter++;
-  } while ((read_buf != write_buf) && (counter < 10));
 
+  ASSERT_EQ(sizeof(write_buf), udp_interface->read(temp));
   EXPECT_EQ(read_buf, write_buf);
-  EXPECT_EQ(mock_endpoint, udp_interface->getUdpEndpointRead());
 
   mock_udp_server.block = 1;
   udp_interface->write(boost::asio::buffer(write_buf));

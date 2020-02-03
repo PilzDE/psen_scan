@@ -30,7 +30,6 @@ public:
   virtual ~UDPInterface() = default;
   virtual void write(const boost::asio::mutable_buffers_1& buffer) = 0;
   virtual std::size_t read(boost::asio::mutable_buffers_1& buffer) = 0;
-  virtual udp::endpoint getUdpEndpointRead() = 0;
 };
 // LCOV_EXCL_STOP
 
@@ -46,12 +45,14 @@ public:
                        const uint32_t& host_udp_port);
   void write(const boost::asio::mutable_buffers_1& buffer);
   std::size_t read(boost::asio::mutable_buffers_1& buffer);
-  udp::endpoint getUdpEndpointRead();
+  udp::endpoint getUdpWriteEndpoint() const;
+  udp::endpoint getUdpReadEndpoint() const;
 
 private:
-  udp::socket socket_;               /**< Socket used for communication with Laserscanner. */
-  udp::endpoint udp_endpoint_read_;  /**< Endpoint is Laserscanner. */
-  udp::endpoint udp_endpoint_write_; /**< Endpoint is the host computer. */
+  udp::socket socket_write_;         /**< Socket used for writing to Laserscanner. */
+  udp::socket socket_read_;          /**< Socket used for reading from Laserscanner. */
+  udp::endpoint udp_write_endpoint_; /**< Endpoint for writing to Laserscanner. */
+  udp::endpoint udp_read_endpoint_;  /**< Endpoint for reading from Laserscanner. */
 };
 }
 

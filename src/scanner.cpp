@@ -126,10 +126,6 @@ MonitoringFrame Scanner::fetchMonitoringFrame()
   try
   {
     bytes_received = udp_interface_->read(buf);
-    if (scanner_ip_ != udp_interface_->getUdpEndpointRead().address().to_string())
-    {
-      throw FetchMonitoringFrameException("Sender IP doesn't match Scanner IP!");
-    }
     if (bytes_received != sizeof(MonitoringFrame))
     {
       throw FetchMonitoringFrameException("Received Frame length doesn't match MonitoringFrame length!");

@@ -24,7 +24,6 @@ namespace psen_scan_test
 class MockPSENscanUDPInterface : public psen_scan::UDPInterface
 {
 public:
-  MOCK_METHOD0(getUdpEndpointRead, udp::endpoint());
   MOCK_METHOD1(write, void(const boost::asio::mutable_buffers_1& buffer));
   MOCK_METHOD1(read, std::size_t(boost::asio::mutable_buffers_1& buffer));
 

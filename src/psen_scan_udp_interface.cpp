@@ -30,9 +30,13 @@ namespace psen_scan
 PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service,
                                            const std::string& scanner_ip,
                                            const uint32_t& host_udp_port)
-  : socket_(io_service, udp::endpoint(udp::v4(), host_udp_port))
-  , udp_endpoint_write_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT)
+  : socket_write_(io_service, udp::endpoint(udp::v4(), host_udp_port + 1))
+  , socket_read_(io_service, udp::endpoint(udp::v4(), host_udp_port))
+  , udp_write_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_WRITE)
+  , udp_read_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_READ)
 {
+  socket_write_.connect(udp_write_endpoint_);
+  socket_read_.connect(udp_read_endpoint_);
 }
 
 /**
@@ -43,7 +47,7 @@ PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service,
 
 void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
 {
-  socket_.send_to(buffer, udp_endpoint_write_);
+  socket_write_.send(buffer);
 }
 
 /**
@@ -62,7 +66,7 @@ std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
   typedef boost::chrono::duration<int64_t, boost::ratio<1>> Second;
   Clock::time_point t1 = Clock::now();
   Clock::duration d = Clock::now() - t1;
-  while (0 == socket_.available())
+  while (0 == socket_read_.available())
   {
     d = Clock::now() - t1;
     Second s(duration_counter);
@@ -76,17 +80,27 @@ std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
     }
   };
   duration_counter = 1;
-  return socket_.receive_from(buffer, udp_endpoint_read_);
+  return socket_read_.receive(buffer);
 }
 
 /**
- * @brief Get the Udp Endpoint object for reading
+ * @brief Get the Udp Endpoint object used for write communication
  *
  * @return udp::endpoint
  */
-udp::endpoint PSENscanUDPInterface::getUdpEndpointRead()
+udp::endpoint PSENscanUDPInterface::getUdpWriteEndpoint() const
 {
-  return udp_endpoint_read_;
+  return udp_write_endpoint_;
+};
+
+/**
+ * @brief Get the Udp Endpoint object used for read communication
+ *
+ * @return udp::endpoint
+ */
+udp::endpoint PSENscanUDPInterface::getUdpReadEndpoint() const
+{
+  return udp_read_endpoint_;
 };
 
 }  // namespace psen_scan
