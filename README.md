@@ -24,6 +24,20 @@ The **psen_scan** package is a ROS integration of the PSENscan Safety laser scan
 2. [ROS API](#ros_api)
 3. [Usage](#usage)
 
+## Installation
+To use the package, you can install it with
+```
+sudo apt install ros-melodic-psen-scan
+```
+
+## Build Status
+| Platform | Status |
+| -------- | ------ |
+| Travis | [![Build Status](https://travis-ci.org/PilzDE/psen_scan.svg?branch=melodic-devel)](https://travis-ci.org/PilzDE/psen_scan) |
+| Buildfarm src | [![Build Status](http://build.ros.org/job/Msrc_uB__psen_scan__ubuntu_bionic__source/badge/icon)](http://build.ros.org/job/Msrc_uB__psen_scan__ubuntu_bionic__source/) |
+| Buildfarm bin | [![Build Status](http://build.ros.org/job/Mbin_uB64__psen_scan__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__psen_scan__ubuntu_bionic_amd64__binary/) |
+
+
 ## Setup
 
 Needed Equipment:
