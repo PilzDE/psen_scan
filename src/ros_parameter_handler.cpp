@@ -18,6 +18,7 @@
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/decrypt_password_exception.h"
 #include <psen_scan/default_parameters.h>
+#include <psen_scan/scanner_data.h>
 #include <arpa/inet.h>
 #include <algorithm>
 
@@ -34,25 +35,29 @@ namespace psen_scan
  */
 RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
   : nh_(nh)
-  , frame_id_("scanner")
-  , skip_(0)
-  , angle_start_(0)
-  , angle_end_(2750)
-  , x_axis_rotation_(default_x_axis_rotation)
-  , publish_topic_("scan")
+  , host_ip_()
+  , host_udp_port_()
+  , frame_id_(DEFAULT_FRAME_ID)
+  , skip_(DEFAULT_SKIP)
+  , angle_start_(DEFAULT_ANGLE_START)
+  , angle_end_(DEFAULT_ANGLE_END)
+  , x_axis_rotation_(DEFAULT_X_AXIS_ROTATION)
+  , publish_topic_(DEFAULT_PUBLISH_TOPIC)
 {
+  updateAllParamsFromParamServer();
+}
+
+/**
+ * @brief Update all Parameters from ROS Parameter Server
+ *
+ */
+void RosParameterHandler::updateAllParamsFromParamServer()
+{
+  // required parameters first
+  // update parameter password
   try
   {
-    // required parameters first
-    int host_udp_port = getParamFromNh<int>(nh_, "host_udp_port");
-
-    if (host_udp_port < 0)
-    {
-      throw PSENScanFatalException("Parameter host_udp_port may not be negative!");
-    }
-
-    password_ = getParamFromNh<std::string>(nh_, "password");
-
+    getRequiredParamFromParamServer<std::string>("password", password_);
     try
     {
       password_ = decryptPassword(password_);
@@ -61,58 +66,215 @@ RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
     {
       throw PSENScanFatalException("Invalid Password: " + std::string(e.what()));
     }
-
-    host_udp_port_ = htole32(static_cast<uint32_t>(host_udp_port));
-    std::string host_ip = getParamFromNh<std::string>(nh_, "host_ip");
-    host_ip_ = htobe32(inet_network(host_ip.c_str()));
-    sensor_ip_ = getParamFromNh<std::string>(nh_, "sensor_ip");
-
-    // non-required parameters last
-    float angle_start = getParamFromNh<float>(nh_, "angle_start") * 10;  // Convert to tenths of degree
-    if (angle_start < 0)
-    {
-      throw PSENScanFatalException("Parameter angle_start may not be negative!");
-    }
-    angle_start_ = static_cast<uint16_t>(angle_start);
-
-    float angle_end = getParamFromNh<float>(nh_, "angle_end") * 10;  // Convert to tenths of degree
-    if (angle_end < 0)
-    {
-      throw PSENScanFatalException("Parameter angle_end may not be negative!");
-    }
-    angle_end_ = static_cast<uint16_t>(angle_end);
-
-    x_axis_rotation_ = getParamFromNh<double>(nh_, "x_axis_rotation");
-    if ((x_axis_rotation_ > max_x_axis_rotation) || (x_axis_rotation_ < min_x_axis_rotation))
-    {
-      throw PSENScanFatalException("Parameter x_axis_rotation is out of range. [-360.0 .. 360.0]");
-    }
-
-    int skip = getParamFromNh<int>(nh_, "skip");
-    if (skip < 0)
-    {
-      throw PSENScanFatalException("Parameter skip may not be negative!");
-    }
-    skip_ = static_cast<uint16_t>(skip);
-
-    frame_id_ = getParamFromNh<std::string>(nh_, "frame_id");
-    publish_topic_ = getParamFromNh<std::string>(nh_, "publish_topic");
   }
   catch (const GetROSParameterException& e)
   {
     ROS_WARN_STREAM(e.what());
-    bool required = ROS_PARAMETER.find(e.getKey())->second;
-
-    if (required)
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter password
+  // update parameter host_ip
+  try
+  {
+    std::string host_ip;
+    getRequiredParamFromParamServer<std::string>("host_ip", host_ip);
+    in_addr_t ip_addr = inet_network(host_ip.c_str());
+    if (static_cast<in_addr_t>(-1) == ip_addr)
     {
-      ROS_FATAL("Cannot proceed with default configuration.");
-      throw PSENScanFatalException("Reading of required parameter failed!");
+      throw PSENScanFatalException("Host IP address conversion failed!");
     }
-    else
+    host_ip_ = htobe32(ip_addr);
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter host_ip
+  // update parameter host_udp_port
+  try
+  {
+    int host_udp_port;
+    getRequiredParamFromParamServer<int>("host_udp_port", host_udp_port);
+    if (host_udp_port < 0)
     {
-      ROS_WARN_STREAM("Proceeding with default configuration.");
+      throw PSENScanFatalException("Parameter host_udp_port may not be negative!");
+    }
+    if (host_udp_port > 65535)
+    {
+      throw PSENScanFatalException("Parameter host_udp_port too large!");
+    }
+    host_udp_port_ = htole32(static_cast<uint32_t>(host_udp_port));
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter host_udp_port
+  // update parameter sensor_ip
+  try
+  {
+    std::string sensor_ip;
+    getRequiredParamFromParamServer<std::string>("sensor_ip", sensor_ip);
+    in_addr_t ip_addr = inet_network(sensor_ip.c_str());
+    if (static_cast<in_addr_t>(-1) == ip_addr)
+    {
+      throw PSENScanFatalException("Sensor IP address conversion failed!");
+    }
+    sensor_ip_ = sensor_ip;
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter sensor_ip
+
+  // non-required parameters last
+  // update parameter frame_id
+  try
+  {
+    getOptionalParamFromParamServer<std::string>("frame_id", frame_id_);
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter frame_id
+  // update parameter skip
+  try
+  {
+    int skip;
+    if (getOptionalParamFromParamServer<int>("skip", skip))
+    {
+      if (skip < 0)
+      {
+        throw PSENScanFatalException("Parameter skip may not be negative!");
+      }
+      skip_ = static_cast<uint16_t>(skip);
     }
   }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter skip
+  // update parameter angle_start
+  try
+  {
+    float angle_start;
+    if (getOptionalParamFromParamServer<float>("angle_start", angle_start))
+    {
+      if (PSENscanInternalAngle(Degree(angle_start)) < MIN_SCAN_ANGLE)
+      {
+        throw PSENScanFatalException("Parameter angle_start may not be negative!");
+      }
+      if (PSENscanInternalAngle(Degree(angle_start)) > MAX_SCAN_ANGLE)
+      {
+        throw PSENScanFatalException("Parameter angle_start too large!");
+      }
+      angle_start_ = PSENscanInternalAngle(Degree(angle_start));
+    }
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter angle_start
+  // update parameter angle_end
+  try
+  {
+    float angle_end;
+    if (getOptionalParamFromParamServer<float>("angle_end", angle_end))
+    {
+      if (PSENscanInternalAngle(Degree(angle_end)) < MIN_SCAN_ANGLE)
+      {
+        throw PSENScanFatalException("Parameter angle_end may not be negative!");
+      }
+      if (PSENscanInternalAngle(Degree(angle_end)) > MAX_SCAN_ANGLE)
+      {
+        throw PSENScanFatalException("Parameter angle_end too large!");
+      }
+      angle_end_ = PSENscanInternalAngle(Degree(angle_end));
+    }
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter angle_end
+  // update parameter x_axis_rotation
+  try
+  {
+    double x_axis_rotation;
+    if (getOptionalParamFromParamServer<double>("x_axis_rotation", x_axis_rotation))
+    {
+      x_axis_rotation_ = Degree(x_axis_rotation);
+      if ((x_axis_rotation_ > MAX_X_AXIS_ROTATION) || (x_axis_rotation_ < MIN_X_AXIS_ROTATION))
+      {
+        throw PSENScanFatalException("Parameter x_axis_rotation is out of range. [-360.0 .. 360.0]");
+      }
+    }
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter x_axis_rotation
+  // update parameter publish_topic
+  try
+  {
+    getOptionalParamFromParamServer<std::string>("publish_topic", publish_topic_);
+  }
+  catch (const GetROSParameterException& e)
+  {
+    ROS_WARN_STREAM(e.what());
+    throw PSENScanFatalException("Reading of required parameter failed!");
+  }  // update parameter publish_topic
+}
+
+/**
+ * @brief Gets one required ROS-parameter from parameter server
+ *
+ * @tparam T Type of parameter to fetch
+ * @param key Key for the parameter on parameter-server
+ *
+ * @throws GetROSParameterException
+ */
+template <class T>
+void RosParameterHandler::getRequiredParamFromParamServer(const std::string& key, T& param)
+{
+  if (!nh_.hasParam(key))
+  {
+    throw GetROSParameterException("Parameter " + key + " doesn't exist on parameter server.");
+  }
+
+  if (!nh_.getParam(key, param))
+  {
+    throw GetROSParameterException("Parameter " + key + " has wrong datatype on parameter server.");
+  }
+  return;
+}
+
+/**
+ * @brief Gets one optional ROS-parameter from parameter server
+ *
+ * @tparam T Type of parameter to fetch
+ * @param key Key for the parameter on parameter-server
+ * @return true for sucess and false if the parameter does not exist
+ *
+ * @throws GetROSParameterException
+ */
+template <class T>
+bool RosParameterHandler::getOptionalParamFromParamServer(const std::string& key, T& param)
+{
+  if (!nh_.hasParam(key))
+  {
+    ROS_WARN_STREAM("Parameter " + key + " doesn't exist on parameter server. Proceeding with default configuration.");
+    return false;
+  }
+  if (!nh_.getParam(key, param))
+  {
+    throw GetROSParameterException("Parameter " + key + " has wrong datatype on parameter server.");
+  }
+  return true;
 }
 
 /**
@@ -180,7 +342,7 @@ uint16_t RosParameterHandler::getSkip() const
  *
  * @return uint16_t
  */
-uint16_t RosParameterHandler::getAngleStart() const
+PSENscanInternalAngle RosParameterHandler::getAngleStart() const
 {
   return angle_start_;
 }
@@ -190,7 +352,7 @@ uint16_t RosParameterHandler::getAngleStart() const
  *
  * @return uint16_t
  */
-uint16_t RosParameterHandler::getAngleEnd() const
+PSENscanInternalAngle RosParameterHandler::getAngleEnd() const
 {
   return angle_end_;
 }
@@ -200,7 +362,7 @@ uint16_t RosParameterHandler::getAngleEnd() const
  *
  * @return double
  */
-double RosParameterHandler::getXAxisRotation() const
+Degree RosParameterHandler::getXAxisRotation() const
 {
   return x_axis_rotation_;
 }
@@ -213,27 +375,6 @@ double RosParameterHandler::getXAxisRotation() const
 std::string RosParameterHandler::getPublishTopic() const
 {
   return publish_topic_;
-}
-
-/**
- * @brief Gets one ROS-parameter from parameter-server
- *
- * @tparam T Type of parameter to fetch
- * @param nh Nodehandle through which parameter should be fetched
- * @param key Key for the parameter on parameter-server
- * @return T Parameter from parameter-server
- *
- * @throws GetROSParameterException
- */
-template <class T>
-T RosParameterHandler::getParamFromNh(const ros::NodeHandle& nh, const std::string& key) const
-{
-  T ret;
-  if (!nh.getParam(key, ret))
-  {
-    throw GetROSParameterException("Parameter " + key + " doesn't exist on Parameter Server.", key);
-  }
-  return ret;
 }
 
 /**
@@ -275,10 +416,6 @@ std::string RosParameterHandler::decryptPassword(const std::string& encrypted_pa
           encryption_xor_key;
     }
     catch (const std::invalid_argument& e)
-    {
-      throw DecryptPasswordException(e.what());
-    }
-    catch (const std::out_of_range& e)
     {
       throw DecryptPasswordException(e.what());
     }

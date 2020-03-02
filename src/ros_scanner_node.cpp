@@ -19,6 +19,7 @@
 #include "psen_scan/parse_monitoring_frame_exception.h"
 #include "psen_scan/build_ros_message_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
+#include <psen_scan/scanner_data.h>
 
 namespace psen_scan
 {
@@ -35,7 +36,7 @@ ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
                                const std::string& topic,
                                const std::string& frame_id,
                                const uint16_t& skip,
-                               const double& x_axis_rotation,
+                               const Degree& x_axis_rotation,
                                std::unique_ptr<vScanner> scanner)
   : nh_(nh)
   , frame_id_(frame_id)
@@ -58,10 +59,9 @@ ROSScannerNode::ROSScannerNode(ros::NodeHandle& nh,
  * @return double, angle in rad
  *
  */
-template <class T>
-double degToRad(const T& deg)
+double degToRad(const Degree& deg)
 {
-  return deg * M_PI / 180.0;
+  return static_cast<double>(deg) * M_PI / 180.0;
 }
 
 /**
@@ -76,7 +76,7 @@ double degToRad(const T& deg)
  */
 sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& laserscan)
 {
-  if (laserscan.resolution_ == 0)
+  if (laserscan.resolution_ == PSENscanInternalAngle(0))
   {
     throw BuildROSMessageException("Resolution cannot be 0!");
   }
@@ -85,7 +85,7 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
     throw BuildROSMessageException("Attention: Start angle has to be smaller than end angle!");
   }
   uint16_t expected_size =
-      (laserscan.max_scan_angle_ - laserscan.min_scan_angle_) / static_cast<uint16_t>(laserscan.resolution_);
+      static_cast<int>(laserscan.max_scan_angle_ - laserscan.min_scan_angle_) / static_cast<int>(laserscan.resolution_);
   if (expected_size != laserscan.measures_.size())
   {
     throw BuildROSMessageException("Calculated number of scans doesn't match actual number of scans!");
@@ -94,9 +94,9 @@ sensor_msgs::LaserScan ROSScannerNode::buildRosMessage(const LaserScan& lasersca
   sensor_msgs::LaserScan ros_message;
   ros_message.header.stamp = ros::Time::now();
   ros_message.header.frame_id = frame_id_;
-  ros_message.angle_min = degToRad(laserscan.min_scan_angle_ / 10.0 - x_axis_rotation_);
-  ros_message.angle_max = degToRad(laserscan.max_scan_angle_ / 10.0 - x_axis_rotation_);
-  ros_message.angle_increment = degToRad(laserscan.resolution_ / 10.0);
+  ros_message.angle_min = degToRad(Degree(laserscan.min_scan_angle_) - x_axis_rotation_);
+  ros_message.angle_max = degToRad(Degree(laserscan.max_scan_angle_) - x_axis_rotation_);
+  ros_message.angle_increment = degToRad(Degree(laserscan.resolution_));
   ros_message.time_increment = SCAN_TIME / NUMBER_OF_SAMPLES_FULL_SCAN_MASTER;
   ros_message.scan_time = SCAN_TIME;
   ros_message.range_min = 0;

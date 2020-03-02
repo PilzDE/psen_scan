@@ -89,6 +89,7 @@ set(${PROJECT_NAME}_sources
   src/scanner.cpp
   src/scanner_frames.cpp
   src/laserscan.cpp
+  src/psen_scan_internal_angle.cpp
   src/psen_scan_udp_interface.cpp
 )
 
@@ -152,6 +153,7 @@ if(CATKIN_ENABLE_TESTING)
     src/scanner.cpp
     src/scanner_frames.cpp
     src/laserscan.cpp
+    src/psen_scan_internal_angle.cpp
     src/psen_scan_udp_interface.cpp
   )
   target_link_libraries(scanner_test
@@ -163,14 +165,25 @@ if(CATKIN_ENABLE_TESTING)
     test/ros_scanner_node_test.cpp
     src/ros_scanner_node.cpp
     src/laserscan.cpp
+    src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(ros_scanner_node_test
     ${catkin_LIBRARIES}
   )
 
+  catkin_add_gtest(psen_scan_internal_angle_test
+    test/psen_scan_internal_angle_test.cpp
+    src/psen_scan_internal_angle.cpp
+  )
+  target_link_libraries(psen_scan_internal_angle_test
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
+
   catkin_add_gtest(psen_scan_udp_interface_test
-    src/psen_scan_udp_interface.cpp
     test/psen_scan_udp_interface_test.cpp
+    src/psen_scan_internal_angle.cpp
+    src/psen_scan_udp_interface.cpp
   )
   target_link_libraries(psen_scan_udp_interface_test
     ${catkin_LIBRARIES}
@@ -181,6 +194,7 @@ if(CATKIN_ENABLE_TESTING)
     test/ros_parameter_handler_test.test
     test/ros_parameter_handler_test.cpp
     src/ros_parameter_handler.cpp
+    src/psen_scan_internal_angle.cpp
   )
   target_link_libraries(ros_parameter_handler_test
     ${catkin_LIBRARIES}

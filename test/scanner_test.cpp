@@ -19,6 +19,7 @@
 #include "mock_psen_scan_udp_interface.h"
 #include "psen_scan/scanner.h"
 #include "psen_scan/laserscan.h"
+#include "psen_scan/scanner_data.h"
 #include "psen_scan/coherent_monitoring_frames_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/parse_monitoring_frame_exception.h"
@@ -253,13 +254,19 @@ TEST_F(ScannerTest, getCompleteScan_ideal)
       .READ_FRAME(4)
       .READ_FRAME(5);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   LaserScan scan = scanner.getCompleteScan();
 
-  EXPECT_EQ(scan.min_scan_angle_, 0);
-  EXPECT_EQ(scan.max_scan_angle_, 2750);
-  EXPECT_EQ(scan.resolution_, 1);
+  EXPECT_EQ(scan.min_scan_angle_, PSENscanInternalAngle(0));
+  EXPECT_EQ(scan.max_scan_angle_, PSENscanInternalAngle(2750));
+  EXPECT_EQ(scan.resolution_, PSENscanInternalAngle(1));
   std::vector<uint16_t> expected_measures(2750, 0);
   EXPECT_EQ(scan.measures_, expected_measures);
 }
@@ -268,7 +275,13 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_middle)
 {
   EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(2)).READ_FRAME(0).READ_FRAME(2);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   ASSERT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
 }
@@ -277,7 +290,13 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_first)
 {
   EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(1)).READ_FRAME(1);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   ASSERT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
 }
@@ -293,7 +312,13 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_last)
       .READ_FRAME(4)
       .READ_FRAME(0);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   ASSERT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
 }
@@ -309,13 +334,19 @@ TEST_F(ScannerTest, getCompleteScan_correct_return_value)
       .READ_FRAME(4)
       .READ_FRAME(5);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 90, 300, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(90),
+                  PSENscanInternalAngle(300),
+                  std::move(udp_interface_ptr));
 
   LaserScan scan = scanner.getCompleteScan();
 
-  EXPECT_EQ(scan.min_scan_angle_, 90);
-  EXPECT_EQ(scan.max_scan_angle_, 300);
-  EXPECT_EQ(scan.resolution_, 1);
+  EXPECT_EQ(scan.min_scan_angle_, PSENscanInternalAngle(90));
+  EXPECT_EQ(scan.max_scan_angle_, PSENscanInternalAngle(300));
+  EXPECT_EQ(scan.resolution_, PSENscanInternalAngle(1));
   std::vector<uint16_t> expected_measures(210, 0);
   EXPECT_EQ(scan.measures_, expected_measures);
 }
@@ -326,24 +357,24 @@ TEST_F(ScannerTest, ConstructorWrongArguments)
                                0x01020305,
                                1234,
                                "p4sswort",
-                               0,
-                               2750,
+                               PSENscanInternalAngle(0),
+                               PSENscanInternalAngle(2750),
                                std::move(udp_interface_ptr)),
                PSENScanFatalException);
   EXPECT_THROW(Scanner scanner("1.2.3.4",
                                0x01020305,
                                65536,  // This throws exception
                                "p4sswort",
-                               0,
-                               2750,
+                               PSENscanInternalAngle(0),
+                               PSENscanInternalAngle(2750),
                                std::move(udp_interface_ptr)),
                PSENScanFatalException);
   EXPECT_THROW(Scanner scanner("1.2.3.4",
                                0x01020305,
                                1023,  // Print Warning
                                "p4sswort",
-                               0,
-                               2750,
+                               PSENscanInternalAngle(0),
+                               PSENscanInternalAngle(2750),
                                nullptr  // This throws exception
                                ),
                PSENScanFatalException);
@@ -351,16 +382,16 @@ TEST_F(ScannerTest, ConstructorWrongArguments)
                                0x01020305,
                                1023,  // Print Warning
                                "p4sswort",
-                               2,
-                               1,  // This throws exception
+                               PSENscanInternalAngle(2),
+                               PSENscanInternalAngle(1),  // This throws exception
                                std::move(udp_interface_ptr)),
                PSENScanFatalException);
   EXPECT_THROW(Scanner scanner("1.2.3.4",
                                0x01020305,
                                1023,  // Print Warning
                                "p4sswort",
-                               0,
-                               MAX_SCAN_ANGLE + 1,  // This throws exception
+                               PSENscanInternalAngle(0),
+                               MAX_SCAN_ANGLE + PSENscanInternalAngle(1),  // This throws exception
                                std::move(udp_interface_ptr)),
                PSENScanFatalException);
 }
@@ -369,7 +400,13 @@ TEST_F(ScannerTest, StartStop)
 {
   EXPECT_CALL(*udp_interface_ptr, write(_)).Times(2);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   scanner.start();
   scanner.stop();
@@ -385,7 +422,13 @@ TEST_F(ScannerTest, testParseMonitoringFrameException)
       .READ_FRAME(8)
       .READ_FRAME(9);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), ParseMonitoringFrameException);
   EXPECT_THROW(scanner.getCompleteScan(), ParseMonitoringFrameException);
@@ -418,7 +461,13 @@ TEST_F(ScannerTest, testDiagnosticInformationException)
       .READ_FRAME(28)
       .READ_FRAME(29);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), DiagnosticInformationException);
   EXPECT_THROW(scanner.getCompleteScan(), DiagnosticInformationException);
@@ -452,7 +501,13 @@ TEST_F(ScannerTest, testCoherentMonitoringFramesException)
       .READ_FRAME(33)
       .READ_FRAME(34);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
   EXPECT_THROW(scanner.getCompleteScan(), ParseMonitoringFrameException);
@@ -470,15 +525,26 @@ TEST_F(ScannerTest, testFetchMonitoringFrameException)
       .WillOnce(Throw(UDPReadTimeoutException("Exception!")))
       .READ_FRAME(2);
 
-  Scanner scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr));
+  Scanner scanner("1.2.3.4",
+                  0x01020305,
+                  1234,
+                  "p4sswort",
+                  PSENscanInternalAngle(0),
+                  PSENscanInternalAngle(2750),
+                  std::move(udp_interface_ptr));
 
   EXPECT_THROW(scanner.getCompleteScan(), CoherentMonitoringFramesException);
 }
 
 TEST_F(ScannerTest, new_scanner)
 {
-  std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(
-      new Scanner("1.2.3.4", 0x01020305, 1234, "p4sswort", 0, 2750, std::move(udp_interface_ptr)));
+  std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(new Scanner("1.2.3.4",
+                                                                          0x01020305,
+                                                                          1234,
+                                                                          "p4sswort",
+                                                                          PSENscanInternalAngle(0),
+                                                                          PSENscanInternalAngle(2750),
+                                                                          std::move(udp_interface_ptr)));
 }
 }
 

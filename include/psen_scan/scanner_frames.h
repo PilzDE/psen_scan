@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <array>
 
+#include <psen_scan/psen_scan_internal_angle.h>
+
 namespace psen_scan
 {
 #pragma pack(push, 1)  // Don't allow padding
@@ -175,9 +177,9 @@ typedef struct MonitoringFrame
   /**< Counter indicating the number of rounds that the motor has performed since power-up. This field is only available
    * from Version 2.1.0 or later. Byte order: little endian */
   uint32_t scan_counter_;
-  uint16_t to_theta() const
+  PSENscanInternalAngle to_theta() const
   {
-    return from_theta_ + static_cast<uint16_t>(resolution_) * number_of_samples_;
+    return PSENscanInternalAngle(from_theta_ + static_cast<uint16_t>(resolution_) * number_of_samples_);
   }
 } MonitoringFrame;
 

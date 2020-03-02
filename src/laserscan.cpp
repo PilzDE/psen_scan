@@ -24,7 +24,9 @@ namespace psen_scan
   * @param min_scan_angle Lowest  Angle the Scanner is scanning in tenths of degree.
   * @param max_scan_angle Highest Angle the Scanner is scanning in tenths of degree.
   */
-LaserScan::LaserScan(const uint8_t& resolution, const uint16_t& min_scan_angle, const uint16_t& max_scan_angle)
+LaserScan::LaserScan(const PSENscanInternalAngle& resolution,
+                     const PSENscanInternalAngle& min_scan_angle,
+                     const PSENscanInternalAngle& max_scan_angle)
   : resolution_(resolution)
   , min_scan_angle_(min_scan_angle)
   , max_scan_angle_(max_scan_angle)

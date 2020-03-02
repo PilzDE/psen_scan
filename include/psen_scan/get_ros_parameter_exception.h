@@ -23,22 +23,11 @@ namespace psen_scan
 class GetROSParameterException : public std::runtime_error
 {
 public:
-  GetROSParameterException(const std::string& msg, const std::string& key)
+  GetROSParameterException(const std::string& msg)
     : std::runtime_error(msg)
-    , key_(key)
   {
   }
-
-  std::string getKey() const;
-
-private:
-  std::string key_;
 };
-
-inline std::string GetROSParameterException::getKey() const
-{
-  return key_;
-}
 }
 
 #endif  // PSEN_SCAN_GET_ROS_PARAMETER_EXCEPTION_H

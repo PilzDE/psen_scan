@@ -45,8 +45,8 @@ public:
           const uint32_t& host_ip,
           const uint32_t& host_udp_port,
           const std::string& password,
-          const uint16_t& angle_start,
-          const uint16_t& angle_end,
+          const PSENscanInternalAngle& angle_start,
+          const PSENscanInternalAngle& angle_end,
           std::unique_ptr<UDPInterface> udp_interface);
 
   void start();
@@ -57,8 +57,8 @@ private:
   std::string scanner_ip_;                      /**< IP-Adress of Laserscanner */
   StartMonitoringFrame start_monitoring_frame_; /**< Start Monitoring Command Frame */
   StopMonitoringFrame stop_monitoring_frame_;   /**< Stop Monitoring Command Frame */
-  uint16_t angle_start_;                        /**< Start angle of Laserscanner measurements */
-  uint16_t angle_end_;                          /**< End angle of Laserscanner measurements */
+  PSENscanInternalAngle angle_start_;           /**< Start angle of Laserscanner measurements */
+  PSENscanInternalAngle angle_end_;             /**< End angle of Laserscanner measurements */
   MonitoringFrame previous_monitoring_frame_;   /**< Buffer for incoming Laserscanner data */
   std::unique_ptr<UDPInterface> udp_interface_; /**< Pointer to UDP Communication Interface */
 

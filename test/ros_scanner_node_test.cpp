@@ -37,14 +37,14 @@ protected:
   void SetUp() override
   {
     node1_Scanner_test = std::unique_ptr<MockScanner>(new MockScanner());
-    laser_scan_fake = new LaserScan(1, 1, 2);
+    laser_scan_fake = new LaserScan(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
     laser_scan_fake->measures_.push_back(1);
-    laser_scan_error_1 = new LaserScan(1, 1, 2);
+    laser_scan_error_1 = new LaserScan(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
     laser_scan_error_1->measures_.push_back(1);
     laser_scan_error_1->measures_.push_back(2);
-    laser_scan_error_2 = new LaserScan(0, 1, 2);
+    laser_scan_error_2 = new LaserScan(PSENscanInternalAngle(0), PSENscanInternalAngle(1), PSENscanInternalAngle(2));
     laser_scan_error_2->measures_.push_back(1);
-    laser_scan_error_3 = new LaserScan(10, 2, 1);
+    laser_scan_error_3 = new LaserScan(PSENscanInternalAngle(10), PSENscanInternalAngle(2), PSENscanInternalAngle(1));
     laser_scan_error_3->measures_.push_back(1);
   }
 
@@ -127,7 +127,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_zero)
                                   "node1_topic",
                                   "node1_frame",
                                   0,  // every frame
-                                  137.5,
+                                  Degree(137.5),
                                   std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -161,7 +161,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_one)
                                   "node1_topic",
                                   "node1_frame",
                                   1,  // every other frame
-                                  137.5,
+                                  Degree(137.5),
                                   std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -194,7 +194,7 @@ TEST_F(ros_scanner_node_test, processingLoop_skip_eq_99)
                                   "node1_topic",
                                   "node1_frame",
                                   99,  // every hundredth frame
-                                  137.5,
+                                  Degree(137.5),
                                   std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
@@ -220,7 +220,8 @@ TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
       .WillOnce(Throw(BuildROSMessageException("")))
       .WillOnce(Throw(FetchMonitoringFrameException("")));
 
-  ROSScannerNode ros_scanner_node(node1_nh_test, "node1_topic", "node1_frame", 0, 137.5, std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(
+      node1_nh_test, "node1_topic", "node1_frame", 0, Degree(137.5), std::move(node1_Scanner_test));
 
   TestSubscriber test_sub(node1_nh_test, "node1_topic");
   ros::AsyncSpinner spinner(1);
@@ -234,7 +235,8 @@ TEST_F(ros_scanner_node_test, processingLoop_exception_catching)
 
 TEST_F(ros_scanner_node_test, buildROSMessage)
 {
-  ROSScannerNode ros_scanner_node(node1_nh_test, "node1_topic", "node1_frame", 0, 137.5, std::move(node1_Scanner_test));
+  ROSScannerNode ros_scanner_node(
+      node1_nh_test, "node1_topic", "node1_frame", 0, Degree(137.5), std::move(node1_Scanner_test));
 
   ros_scanner_node.buildRosMessage(*laser_scan_fake);
   EXPECT_THROW(ros_scanner_node.buildRosMessage(*laser_scan_error_1), BuildROSMessageException);
@@ -248,7 +250,7 @@ TEST_F(ros_scanner_node_test, constructor)
                                   "node1_topic",
                                   "node1_frame",
                                   0,
-                                  137.5,
+                                  Degree(137.5),
                                   nullptr  // This throws exception
                                   ),
                PSENScanFatalException);

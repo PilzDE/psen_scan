@@ -50,8 +50,8 @@ Scanner::Scanner(const std::string& scanner_ip,
                  const uint32_t& host_ip,
                  const uint32_t& host_udp_port,
                  const std::string& password,
-                 const uint16_t& angle_start,
-                 const uint16_t& angle_end,
+                 const PSENscanInternalAngle& angle_start,
+                 const PSENscanInternalAngle& angle_end,
                  std::unique_ptr<UDPInterface> udp_interface)
   : scanner_ip_(scanner_ip)
   , start_monitoring_frame_(password, host_ip, host_udp_port)
@@ -299,7 +299,7 @@ bool Scanner::isDiagnosticInformationOk(const DiagnosticInformation& diag_info)
  */
 LaserScan Scanner::getCompleteScan()
 {
-  LaserScan scan(static_cast<uint8_t>(0), angle_start_, angle_end_);
+  LaserScan scan(PSENscanInternalAngle(0), angle_start_, angle_end_);
 
   MonitoringFrame monitoring_frame;
   bool firstrun = true;
@@ -322,7 +322,7 @@ LaserScan Scanner::getCompleteScan()
       }
     } while (exception_occured);
 
-    if (firstrun && MIN_SCAN_ANGLE != monitoring_frame.from_theta_)
+    if (firstrun && MIN_SCAN_ANGLE != PSENscanInternalAngle(monitoring_frame.from_theta_))
     {
       previous_monitoring_frame_ = monitoring_frame;
       throw CoherentMonitoringFramesException("First Monitoring frame missing!");
@@ -334,7 +334,7 @@ LaserScan Scanner::getCompleteScan()
       throw CoherentMonitoringFramesException("New Cycle has begun! Disregard old values!");
     }
 
-    if (monitoring_frame.from_theta_ != MIN_SCAN_ANGLE &&
+    if (PSENscanInternalAngle(monitoring_frame.from_theta_) != MIN_SCAN_ANGLE &&
         previous_monitoring_frame_.resolution_ != monitoring_frame.resolution_)
     {
       previous_monitoring_frame_ = monitoring_frame;
@@ -351,8 +351,8 @@ LaserScan Scanner::getCompleteScan()
       throw CoherentMonitoringFramesException("ScanCounter of new MonitoringFrame doesn't match previous ScanCounter!");
     }
 
-    if (MIN_SCAN_ANGLE != monitoring_frame.from_theta_ &&
-        previous_monitoring_frame_.to_theta() != monitoring_frame.from_theta_)
+    if (MIN_SCAN_ANGLE != PSENscanInternalAngle(monitoring_frame.from_theta_) &&
+        previous_monitoring_frame_.to_theta() != PSENscanInternalAngle(monitoring_frame.from_theta_))
     {
       previous_monitoring_frame_ = monitoring_frame;
       throw CoherentMonitoringFramesException(
@@ -367,15 +367,16 @@ LaserScan Scanner::getCompleteScan()
     previous_monitoring_frame_ = monitoring_frame;
     firstrun = false;  // next run is the second run or higher
   } while (monitoring_frame.to_theta() != MAX_SCAN_ANGLE);
-  scan.resolution_ = monitoring_frame.resolution_;
+  scan.resolution_ = PSENscanInternalAngle(monitoring_frame.resolution_);
 
-  auto begin_position = angle_start_ / scan.resolution_;
+  auto begin_position = static_cast<int>(angle_start_) / static_cast<int>(scan.resolution_);
   if (begin_position > 0)
   {
     scan.measures_.erase(scan.measures_.begin(), scan.measures_.begin() + begin_position);
   }
 
-  auto end_position = (MAX_SCAN_ANGLE - angle_end_) / scan.resolution_;
+  PSENscanInternalAngle temp_max_scan_angle = MAX_SCAN_ANGLE;
+  auto end_position = static_cast<int>(temp_max_scan_angle - angle_end_) / static_cast<int>(scan.resolution_);
   if (end_position > 0)
   {
     scan.measures_.erase(scan.measures_.end() - end_position, scan.measures_.end());
