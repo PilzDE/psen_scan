@@ -2,6 +2,14 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.4 (2020-03-05)
+------------------
+* Fix/ros parameter handling (#15)
+* Add Travis and ROS Buildfarm Badges to README. (#16)
+* Minor typefix (#14)
+* Fix unstable udp interface test. (#13)
+* Feature/code analysis tools (#12)
+
 1.0.3 (2020-01-17)
 ------------------
 * Add x-axis-rotation feature.
