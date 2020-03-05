@@ -2,8 +2,8 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.4 (2020-03-05)
+------------------
 * Fix/ros parameter handling (#15)
 * Add Travis and ROS Buildfarm Badges to README. (#16)
 * Minor typefix (#14)
