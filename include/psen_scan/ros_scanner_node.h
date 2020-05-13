@@ -47,6 +47,6 @@ private:
   std::unique_ptr<vScanner> scanner_; /**< Points to an instance of the Scanner class.*/
   Degree x_axis_rotation_;            /**< X-axis rotation.*/
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_ROS_SCANNER_NODE_H

@@ -184,6 +184,6 @@ typedef struct MonitoringFrame
 } MonitoringFrame;
 
 #pragma pack(pop)
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_SCANNER_FRAMES_H

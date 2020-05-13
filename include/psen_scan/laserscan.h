@@ -38,6 +38,6 @@ public:
   PSENscanInternalAngle const min_scan_angle_; /**< Lowest  Angle the Scanner is scanning in tenths of degree.*/
   PSENscanInternalAngle const max_scan_angle_; /**< Highest Angle the Scanner is scanning in tenths of degree.*/
 } LaserScan;
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_LASERSCAN_H

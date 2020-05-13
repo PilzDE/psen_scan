@@ -338,8 +338,8 @@ LaserScan Scanner::getCompleteScan()
         previous_monitoring_frame_.resolution_ != monitoring_frame.resolution_)
     {
       previous_monitoring_frame_ = monitoring_frame;
-      throw CoherentMonitoringFramesException(
-          "Resolution of new MonitoringFrame doesn't match previous resolution(s)!");
+      throw CoherentMonitoringFramesException("Resolution of new MonitoringFrame doesn't match previous "
+                                              "resolution(s)!");
     }
 
     if (!firstrun && ((monitoring_frame.to_theta() != MAX_SCAN_ANGLE &&
@@ -355,8 +355,8 @@ LaserScan Scanner::getCompleteScan()
         previous_monitoring_frame_.to_theta() != PSENscanInternalAngle(monitoring_frame.from_theta_))
     {
       previous_monitoring_frame_ = monitoring_frame;
-      throw CoherentMonitoringFramesException(
-          "Start angle of new MonitoringFrame doesn't match angle of previous MonitoringFrame!");
+      throw CoherentMonitoringFramesException("Start angle of new MonitoringFrame doesn't match angle of previous "
+                                              "MonitoringFrame!");
     }
 
     uint16_t length = std::min(monitoring_frame.number_of_samples_,

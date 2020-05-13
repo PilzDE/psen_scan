@@ -26,4 +26,4 @@ TEST(ParseMonitoringFrameExceptionTest, new_parse_monitoring_frame_exception)
   std::unique_ptr<ParseMonitoringFrameException> e(new ParseMonitoringFrameException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

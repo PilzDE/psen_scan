@@ -66,6 +66,6 @@ private:
   bool isDiagnosticInformationOk(const DiagnosticInformation& diag_info);
   bool parseFields(const MonitoringFrame& monitoring_frame);
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_SCANNER_H

@@ -30,6 +30,6 @@ public:
 
 private:
 };
-}
+}  // namespace psen_scan_test
 
 #endif  // PSEN_SCAN_TEST_MOCK_SCANNER_H

@@ -56,4 +56,4 @@ TEST(PSENscanUDPInterfaceTest, test_all)
 
   EXPECT_THROW(udp_interface->read(temp), UDPReadTimeoutException);
 }
-}
+}  // namespace psen_scan_test

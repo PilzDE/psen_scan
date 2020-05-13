@@ -28,6 +28,6 @@ public:
   {
   }
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_UDP_READ_TIMEOUT_EXCEPTION_H

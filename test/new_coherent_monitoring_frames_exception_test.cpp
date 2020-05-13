@@ -26,4 +26,4 @@ TEST(CoherentMonitoringFramesExceptionTest, new_coherent_monitoring_frames_excep
   std::unique_ptr<CoherentMonitoringFramesException> e(new CoherentMonitoringFramesException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

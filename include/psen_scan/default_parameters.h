@@ -30,5 +30,5 @@ static const Degree DEFAULT_X_AXIS_ROTATION(137.5);         /**< Rotation of x-a
 static const Degree MAX_X_AXIS_ROTATION(360.0);             /**< Maximum value for x-axis-rotation parameter */
 static const Degree MIN_X_AXIS_ROTATION(-360.0);            /**< Minimum value for x-axis-rotation parameter */
 static const std::string DEFAULT_PUBLISH_TOPIC = "scan";    /**< Topic to publish LaserScan data on */
-}
+}  // namespace psen_scan
 #endif  // PSEN_SCAN_DEFAULT_PARAMETERS_H
