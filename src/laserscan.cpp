@@ -27,9 +27,7 @@ namespace psen_scan
 LaserScan::LaserScan(const PSENscanInternalAngle& resolution,
                      const PSENscanInternalAngle& min_scan_angle,
                      const PSENscanInternalAngle& max_scan_angle)
-  : resolution_(resolution)
-  , min_scan_angle_(min_scan_angle)
-  , max_scan_angle_(max_scan_angle)
+  : resolution_(resolution), min_scan_angle_(min_scan_angle), max_scan_angle_(max_scan_angle)
 {
   measures_.clear();
 }

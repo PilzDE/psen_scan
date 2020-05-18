@@ -23,8 +23,7 @@ namespace psen_scan
 class PSENScanFatalException : public std::runtime_error
 {
 public:
-  PSENScanFatalException(const std::string& msg)
-    : std::runtime_error(msg)
+  PSENScanFatalException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };

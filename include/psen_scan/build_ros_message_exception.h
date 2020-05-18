@@ -23,8 +23,7 @@ namespace psen_scan
 class BuildROSMessageException : public std::runtime_error
 {
 public:
-  BuildROSMessageException(const std::string& msg)
-    : std::runtime_error(msg)
+  BuildROSMessageException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };

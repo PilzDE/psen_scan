@@ -23,8 +23,7 @@ namespace psen_scan
  *
  * @param angle Angle to convert to Degree object.
  */
-Degree::Degree(const double& angle)
-  : angle_(angle)
+Degree::Degree(const double& angle) : angle_(angle)
 {
 }
 
@@ -33,8 +32,7 @@ Degree::Degree(const double& angle)
  *
  * @param angle Degree object to copy the angle from.
  */
-Degree::Degree(const Degree& angle)
-  : angle_(static_cast<double>(angle))
+Degree::Degree(const Degree& angle) : angle_(static_cast<double>(angle))
 {
 }
 
@@ -43,8 +41,7 @@ Degree::Degree(const Degree& angle)
  *
  * @param angle PSENscanInternalAngle object to get the angle from and convert it to Degrees.
  */
-Degree::Degree(const PSENscanInternalAngle& angle)
-  : angle_(static_cast<int>(angle) / 10.)
+Degree::Degree(const PSENscanInternalAngle& angle) : angle_(static_cast<int>(angle) / 10.)
 {
 }
 
@@ -170,8 +167,7 @@ std::ostream& operator<<(std::ostream& os, const Degree& deg)
  *
  * @param angle PSENscanInternalAngle object to copy the angle from.
  */
-PSENscanInternalAngle::PSENscanInternalAngle(const PSENscanInternalAngle& angle)
-  : angle_(static_cast<int>(angle))
+PSENscanInternalAngle::PSENscanInternalAngle(const PSENscanInternalAngle& angle) : angle_(static_cast<int>(angle))
 {
 }
 
@@ -180,8 +176,7 @@ PSENscanInternalAngle::PSENscanInternalAngle(const PSENscanInternalAngle& angle)
  *
  * @param angle
  */
-PSENscanInternalAngle::PSENscanInternalAngle(const int& angle)
-  : angle_(angle)
+PSENscanInternalAngle::PSENscanInternalAngle(const int& angle) : angle_(angle)
 {
 }
 

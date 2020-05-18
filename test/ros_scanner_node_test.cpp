@@ -73,10 +73,7 @@ ACTION(ROS_SHUTDOWN)
 class TestSubscriber
 {
 public:
-  TestSubscriber(const ros::NodeHandle& nh, const std::string& topic)
-    : receivedMessage_(0)
-    , ready_(false)
-    , nh_(nh)
+  TestSubscriber(const ros::NodeHandle& nh, const std::string& topic) : receivedMessage_(0), ready_(false), nh_(nh)
   {
     sub_ = nh_.subscribe(topic,
                          1000,

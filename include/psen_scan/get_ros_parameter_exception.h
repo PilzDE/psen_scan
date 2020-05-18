@@ -23,8 +23,7 @@ namespace psen_scan
 class GetROSParameterException : public std::runtime_error
 {
 public:
-  GetROSParameterException(const std::string& msg)
-    : std::runtime_error(msg)
+  GetROSParameterException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };
