@@ -76,6 +76,6 @@ public:
   PSENscanInternalAngle& operator=(const PSENscanInternalAngle& rhs) = default;
   friend std::ostream& operator<<(std::ostream& os, const PSENscanInternalAngle& deg);
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_INTERNAL_ANGLE

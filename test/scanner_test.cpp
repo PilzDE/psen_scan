@@ -28,13 +28,13 @@
 
 using namespace psen_scan;
 using ::testing::_;
+using ::testing::Assign;
 using ::testing::AtLeast;
 using ::testing::AtMost;
-using ::testing::Return;
 using ::testing::DoAll;
-using ::testing::Assign;
-using ::testing::SetArgReferee;
+using ::testing::Return;
 using ::testing::SetArgPointee;
+using ::testing::SetArgReferee;
 using ::testing::Throw;
 
 #define READ_FRAME(x) WillOnce(DoAll(fillArg0(expected_monitoring_frames_.at(x)), Return(sizeof(MonitoringFrame))))
@@ -546,7 +546,7 @@ TEST_F(ScannerTest, new_scanner)
                                                                           PSENscanInternalAngle(2750),
                                                                           std::move(udp_interface_ptr)));
 }
-}
+}  // namespace psen_scan_test
 
 int main(int argc, char** argv)
 {

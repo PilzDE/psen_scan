@@ -25,8 +25,8 @@
 #include <boost/thread.hpp>
 
 using namespace psen_scan;
-using ::testing::Return;
 using ::testing::DoAll;
+using ::testing::Return;
 using ::testing::Throw;
 
 namespace psen_scan_test
@@ -255,7 +255,7 @@ TEST_F(ros_scanner_node_test, constructor)
                                   ),
                PSENScanFatalException);
 }
-}
+}  // namespace psen_scan_test
 
 int main(int argc, char** argv)
 {

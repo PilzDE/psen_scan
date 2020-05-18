@@ -26,4 +26,4 @@ TEST(PSENScanFatalExceptionTest, new_psen_scan_fatal_exception)
   std::unique_ptr<PSENScanFatalException> e(new PSENScanFatalException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

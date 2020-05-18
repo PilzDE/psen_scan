@@ -26,4 +26,4 @@ TEST(DiagnosticInformationExceptionTest, new_diagnostic_information_exception)
   std::unique_ptr<DiagnosticInformationException> e(new DiagnosticInformationException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

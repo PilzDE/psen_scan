@@ -24,6 +24,7 @@ env:
     - ROS_REPO=testing ROS_DISTRO="melodic"
     - ROS_REPO=ros ROS_DISTRO="kinetic"
     - ROS_REPO=testing ROS_DISTRO="kinetic"
+    - CLANG_FORMAT_CHECK=file
 matrix:
   allow_failures:
     - env: ROS_REPO=ros

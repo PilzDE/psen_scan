@@ -26,4 +26,4 @@ TEST(FetchMonitoringFrameExceptionTest, new_fetch_monitoring_frame_exception)
   std::unique_ptr<FetchMonitoringFrameException> e(new FetchMonitoringFrameException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

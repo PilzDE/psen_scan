@@ -28,6 +28,6 @@ public:
   {
   }
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_DIAGNOSTIC_INFORMATION_EXCEPTION_H

@@ -1,8 +1,7 @@
 ---
-BasedOnStyle:  Google
+BasedOnStyle: Google
 AccessModifierOffset: -2
 ConstructorInitializerIndentWidth: 2
-AlignAfterOpenBracket: Align
 AlignEscapedNewlinesLeft: false
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -32,16 +31,15 @@ PenaltyBreakString: 100
 PenaltyBreakFirstLessLess: 1000
 PenaltyExcessCharacter: 1000
 PenaltyReturnTypeOnItsOwnLine: 70
-ReflowComments: true
 SpacesBeforeTrailingComments: 2
 Cpp11BracedListStyle: false
-Standard:        Auto
-IndentWidth:     2
-TabWidth:        2
-UseTab:          Never
+Standard: Auto
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
 IndentFunctionDeclarationAfterType: false
 SpacesInParentheses: false
-SpacesInAngles:  false
+SpacesInAngles: false
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpaceAfterControlStatementKeyword: true

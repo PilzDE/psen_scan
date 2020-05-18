@@ -78,6 +78,6 @@ private:
   udp::endpoint remote_endpoint_;
   boost::array<char, 100> recv_buffer_;
 };
-}
+}  // namespace psen_scan_test
 
 #endif  // PSEN_SCAN_TEST_MOCK_UDP_SERVER_H

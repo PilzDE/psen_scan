@@ -26,4 +26,4 @@ TEST(DecryptPasswordExceptionTest, new_build_ros_message_exception)
   std::unique_ptr<DecryptPasswordException> e(new DecryptPasswordException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

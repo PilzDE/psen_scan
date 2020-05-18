@@ -61,6 +61,6 @@ private:
 public:
   static std::string decryptPassword(const std::string& encrypted_password);
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_ROS_PARAMETER_HANDLER_H

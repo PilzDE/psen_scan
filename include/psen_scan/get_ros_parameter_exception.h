@@ -28,6 +28,6 @@ public:
   {
   }
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_GET_ROS_PARAMETER_EXCEPTION_H

@@ -26,4 +26,4 @@ TEST(UDPReadTimeoutExceptionTest, new_udp_read_timeout_exception)
   std::unique_ptr<UDPReadTimeoutException> e(new UDPReadTimeoutException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

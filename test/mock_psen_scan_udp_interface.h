@@ -30,6 +30,6 @@ public:
 private:
   udp::endpoint udp_endpoint_read_;
 };
-}
+}  // namespace psen_scan_test
 
 #endif  // PSEN_SCAN_TEST_MOCK_PSEN_SCAN_UDP_INTERFACE_H

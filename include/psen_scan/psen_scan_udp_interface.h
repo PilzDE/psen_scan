@@ -54,6 +54,6 @@ private:
   udp::endpoint udp_write_endpoint_; /**< Endpoint for writing to Laserscanner. */
   udp::endpoint udp_read_endpoint_;  /**< Endpoint for reading from Laserscanner. */
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_UDP_INTERFACE_H

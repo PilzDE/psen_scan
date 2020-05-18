@@ -26,4 +26,4 @@ TEST(GetROSParameterExceptionTest, new_get_ros_parameter_exception)
   std::unique_ptr<GetROSParameterException> e(new GetROSParameterException(except_str));
   EXPECT_EQ(except_str, e->what());
 }
-}
+}  // namespace psen_scan_test

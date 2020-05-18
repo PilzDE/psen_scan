@@ -28,6 +28,6 @@ public:
   {
   }
 };
-}
+}  // namespace psen_scan
 
 #endif  // PSEN_SCAN_COHERENT_MONITORING_FRAMES_EXCEPTION_H

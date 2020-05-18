@@ -640,7 +640,7 @@ TEST(decryptPasswordTest, correctDecryption)
 
   EXPECT_EQ(RosParameterHandler::decryptPassword("  8 a0880e a38b115 640c7  0d4   38   "), "Giuseppe!!!!");
 }
-}
+}  // namespace psen_scan_test
 
 int main(int argc, char** argv)
 {
