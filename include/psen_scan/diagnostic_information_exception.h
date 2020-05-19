@@ -23,8 +23,7 @@ namespace psen_scan
 class DiagnosticInformationException : public std::runtime_error
 {
 public:
-  DiagnosticInformationException(const std::string& msg)
-    : std::runtime_error(msg)
+  DiagnosticInformationException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };

@@ -23,8 +23,7 @@ namespace psen_scan
 class ParseMonitoringFrameException : public std::runtime_error
 {
 public:
-  ParseMonitoringFrameException(const std::string& msg)
-    : std::runtime_error(msg)
+  ParseMonitoringFrameException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };

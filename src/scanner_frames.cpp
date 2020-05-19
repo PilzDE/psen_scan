@@ -51,9 +51,7 @@ StartMonitoringFrame::StartMonitoringFrame(const std::string& password,
  * @param password Password for Laserscanner
  */
 StopMonitoringFrame::StopMonitoringFrame(const std::string& password)
-  : RESERVED_(0)
-  , password_("")
-  , OPCODE_(STOP_MONITORING_OPCODE)
+  : RESERVED_(0), password_(""), OPCODE_(STOP_MONITORING_OPCODE)
 {
   strncpy(password_, password.c_str(), sizeof(password_));
 

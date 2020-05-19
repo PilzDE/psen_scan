@@ -23,8 +23,7 @@ namespace psen_scan
 class DecryptPasswordException : public std::runtime_error
 {
 public:
-  DecryptPasswordException(const std::string& msg)
-    : std::runtime_error(msg)
+  DecryptPasswordException(const std::string& msg) : std::runtime_error(msg)
   {
   }
 };
