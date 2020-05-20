@@ -15,8 +15,6 @@ notifications:
 env:
   global:
     - CATKIN_LINT=true
-    - CLANG_FORMAT_CHECK=file
-    - CLANG_FORMAT_VERSION=3.9
     - CMAKE_ARGS="-DCATKIN_ENABLE_CLANG_TIDY=true"
     - ADDITIONAL_DEBS="clang-tidy libclang-dev"
   matrix:
@@ -24,7 +22,7 @@ env:
     - ROS_REPO=testing ROS_DISTRO="melodic"
     - ROS_REPO=ros ROS_DISTRO="kinetic"
     - ROS_REPO=testing ROS_DISTRO="kinetic"
-    - CLANG_FORMAT_CHECK=file
+    - ROS_REPO=testing ROS_DISTRO="melodic" CLANG_FORMAT_CHECK=file CLANG_FORMAT_VERSION=3.9
 matrix:
   allow_failures:
     - env: ROS_REPO=ros

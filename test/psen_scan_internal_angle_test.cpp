@@ -342,13 +342,13 @@ TEST(PSENscanInternalAngleTest, int_constructor)
 
 TEST(PSENscanInternalAngleTest, degree_constructor)
 {
-  EXPECT_ANY_THROW(PSENscanInternalAngle deg_double_min(Degree(std::numeric_limits<double>::lowest())));
-  EXPECT_ANY_THROW(PSENscanInternalAngle deg_int_min(Degree(std::numeric_limits<int>::lowest())));
+  EXPECT_ANY_THROW(PSENscanInternalAngle deg_double_min((Degree(std::numeric_limits<double>::lowest()))));
+  EXPECT_ANY_THROW(PSENscanInternalAngle deg_int_min((Degree(std::numeric_limits<int>::lowest()))));
   PSENscanInternalAngle deg_neg(Degree(-100));
   PSENscanInternalAngle deg_zero(Degree(0));
   PSENscanInternalAngle deg_pos(Degree(100));
-  EXPECT_ANY_THROW(PSENscanInternalAngle deg_int_max(Degree(std::numeric_limits<int>::max())));
-  EXPECT_ANY_THROW(PSENscanInternalAngle deg_double_max(Degree(std::numeric_limits<double>::max())));
+  EXPECT_ANY_THROW(PSENscanInternalAngle deg_int_max((Degree(std::numeric_limits<int>::max()))));
+  EXPECT_ANY_THROW(PSENscanInternalAngle deg_double_max((Degree(std::numeric_limits<double>::max()))));
 
   EXPECT_EQ(static_cast<int>(deg_neg), -1000);
   EXPECT_EQ(static_cast<int>(deg_zero), 0);
