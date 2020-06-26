@@ -18,9 +18,12 @@ limitations under the License.
 # Acceptance Test PSENscan using Rviz
 
 ## Prerequisites
-  - Properly configure and start up the PSENscan safety laser scanner.
+  - Properly configure the PSENscan safety laser scanner.
+  - Connect it to power and ethernet.
 
 ### Test Sequence
+
+  0. Wait for the PSENscan to be fully powered up. The screen should show a coloured ring with text in the middle.
 
   1. Run
   ```
@@ -28,5 +31,13 @@ limitations under the License.
   ```
   Replace the variables in brackets with appropriate values for your setup.
 
+  2. Place your hand infront of the PSENscan.
+
+  3. Move your hand left and right around the PSENscan.
+
 ### Expected Results
-  1. Rviz shows a 2D pointcloud of distance values that match your surroundings.
+  1. Rviz shows a red laserscan centered around the origin that matches your surroundings as well as some axes.
+
+  2. Rviz should show distance values near to the center toward the X-Axis.
+
+  3. Rviz should show distance values near to the center moving left and right around the origin in synch with your hand movements.
