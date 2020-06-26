@@ -23,7 +23,7 @@ limitations under the License.
 
 ### Test Sequence
 
-  0. Wait for the PSENscan to be fully powered up. The screen should show a coloured ring with text in the middle.
+  0. Wait for the PSENscan to be fully powered up.
 
   1. Run
   ```
@@ -36,8 +36,11 @@ limitations under the License.
   3. Move your hand left and right around the PSENscan.
 
 ### Expected Results
+
+  0. The PSENscan screen shows a coloured ring with text in the middle.
+
   1. Rviz shows a red laserscan centered around the origin that matches your surroundings as well as some axes.
 
-  2. Rviz should show distance values near to the center toward the X-Axis.
+  2. Rviz shows distance values near to the center toward the X-Axis.
 
-  3. Rviz should show distance values near to the center moving left and right around the origin in synch with your hand movements.
+  3. Rviz shows distance values near to the center moving left and right around the origin in synch with your hand movements.
