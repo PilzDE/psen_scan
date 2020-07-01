@@ -1,11 +1,13 @@
-# PILZ Safety Laserscanner PSENscan
+[![PILZ](img/pilz-logo.png)](https://www.pilz.com)
+
+# PILZ safety laser scanner PSENscan
 
 ## Package: psen_scan
 
-The **psen_scan** package is a ROS integration of the PSENscan Safety laser scanner product. It allows for an easy integration of the Laserscanner-data into your ROS-Environment. Using the standard [sensor_msgs/LaserScan][] message format ensures compatibility with other laserscan-post-processing nodes such as [gmapping][].
+The **psen_scan** package is a ROS integration of the PSENscan safety laser scanner product. It allows for an easy integration of the laser scanner data into your ROS Environment. Using the standard [sensor_msgs/LaserScan][] message format ensures compatibility with other laserscan-post-processing nodes such as [gmapping][]. For a general overview and link collection we refer to the [wiki page](http://wiki.ros.org/psen_scan).
 
 <p align="center">
-<img src="img/PSENscan.jpg" alt="Pilz Safety Laserscanner" title="Pilz Safety Laserscanner">
+<img src="img/PSENscan.jpg" alt="PILZ safety laser scanner" title="PILZ safety laser scanner">
 </p>
 
 | Type | Features | Order number |
@@ -20,12 +22,14 @@ The **psen_scan** package is a ROS integration of the PSENscan Safety laser scan
 
 ## Table of Contents
 
-1. [Setup](#setup)
-2. [ROS API](#ros_api)
-3. [Usage](#usage)
+1. [Installation](#installation)
+2. [Build Status](#build-status)
+3. [Setup](#setup)
+4. [ROS API](#ros-api)
+5. [Usage](#usage)
 
 ## Installation
-To use the package, you can install it with
+To use the package, you can install prebuilt packages with
 ```
 sudo apt install ros-melodic-psen-scan
 ```
@@ -38,30 +42,33 @@ sudo apt install ros-melodic-psen-scan
 | Buildfarm bin | [![Build Status](http://build.ros.org/job/Mbin_uB64__psen_scan__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__psen_scan__ubuntu_bionic_amd64__binary/) |
 
 
+## Branching model
+`melodic-devel` is considered to be the active development branch.
+
 ## Setup
 
 Needed Equipment:
-- PSENscan Safety laser scanner
+- PSENscan safety laser scanner
 - ROS Machine
 
 ## ROS API
 
 ### Published Topics
 /laser_scanner/scan ([sensor_msgs/LaserScan][])<br/>
-Publishes a complete scan from the PSENscan Safety laser scanner.
+Publishes a complete scan from the PSENscan safety laser scanner.
 
 ### Parameters
 _password_ (_string_, default: "ac0d68d033")<br/>
-Password for Safety laser scanner.
+Password for safety laser scanner.
 
 _host_ip_ (_string_, default: "192.168.0.50")<br/>
 IP-Address of host machine.
 
 _host_udp_port_ (_int_, default: 55115)<br/>
-UDP Port on which packets from Safety laser scanner should be received.
+UDP Port on which packets from safety laser scanner should be received.
 
 _sensor_ip_ (_string_, default: "192.168.0.10")<br/>
-IP-Address of Safety laser scanner.
+IP-Address of safety laser scanner.
 
 _frame_id_ (_string_, default: "scanner")<br/>
 Identifier used for transformations within ROS environment.
@@ -79,24 +86,29 @@ _x_axis_rotation_ (_float_, default: 137.5)<br/>
 Clockwise rotation of the x-axis around the center in degrees.
 
 ## Usage
-To start reading from the Safety laser scanner and publishing complete scans execute `roslaunch psen_scan psen_scan.launch` in a command line. This will launch the ROS Node with the default configuration.
+To start reading from the safety laser scanner and publishing complete scans execute `roslaunch psen_scan psen_scan.launch` in a command line. This will launch the ROS Node with the default configuration.
 
 If you wish to set parameters from the command line, add them to the end of the command as follows: `parameter:=value`, separated by spaces.
 
 ```bash
-roslaunch psen_scan psen_scan.launch host_ip:=192.168.0.20 host_udp_port:=3050
+roslaunch psen_scan psen_scan.launch sensor_ip:=192.168.0.10 host_ip:=192.168.0.20 host_udp_port:=3050
 ```
-This example configures the Safety laser scanner to send it´s frames to 192.168.0.20:3050.
+This example configures the safety laser scanner at 192.168.0.10 to send it´s frames to 192.168.0.20:3050.
+
+### Adjust expert parameters
+If you've created an application package with your own launch file as described in the
+[tutorials](http://wiki.ros.org/psen_scan/Tutorials/),
+you can easily adjust the aforementioned configuration parameters.
 
 ## You need further information?
 Our international hotline staff will support you individually about our ROS packages at
 ros@pilz.de
 
-Find more information about the Pilz manipulator module on the [product website](https://www.pilz.com/en-INT/eshop/00106002197131/PSENscan-Safety-Laser-Scanner).
+Find more information about the PILZ safety laser scanner on the [product website](https://www.pilz.com/en-INT/eshop/00106002197131/PSENscan-Safety-Laser-Scanner).
 
 ## Visit us at [pilz.com](https://www.pilz.com)
-Pilz is an international-scale, innovative automation technology company.
-Pilz uses its solutions to create safety for man, machine and the environment.
+PILZ is an international-scale, innovative automation technology company.
+PILZ uses its solutions to create safety for man, machine and the environment.
 In addition to head office in Ostfildern near Stuttgart,
 the family business is represented over 2,400
 employees at 42 subsidiaries and branches on all
@@ -107,7 +119,7 @@ relays, configurable and programmable control systems, automation solutions with
 control, systems for industrial communication as well as visualization solutions and
 operator terminals.
 
-Pilz solutions can be used in all areas of mechanical engineering, including the packaging
+PILZ solutions can be used in all areas of mechanical engineering, including the packaging
 and automotive sector, plus the railway technology, press and wind energy sectors.
 These solutions ensure that baggage handling systems run safely at airports and
 funiculars or roller coasters travel safely; they also guarantee fire protection and energy
