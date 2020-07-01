@@ -78,12 +78,6 @@ End angle of measurement.
 _x_axis_rotation_ (_float_, default: 137.5)<br/>
 Clockwise rotation of the x-axis around the center in degrees.
 
-_publish_topic_ (_string_, default: "scan")<br/>
-Topic to publish LaserScan data on.
-
-_node_name_ (_string_, default: "laser_scanner")<br/>
-Name of Node in ROS Environment. Useful when using multiple Scanners.
-
 ## Usage
 To start reading from the Safety laser scanner and publishing complete scans execute `roslaunch psen_scan psen_scan.launch` in a command line. This will launch the ROS Node with the default configuration.
 

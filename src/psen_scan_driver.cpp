@@ -18,6 +18,7 @@
 #include "psen_scan/ros_parameter_handler.h"
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
+#include "psen_scan/default_parameters.h"
 
 using namespace psen_scan;
 typedef std::unique_ptr<PSENscanUDPInterface> PSENscanUDPptr;
@@ -42,7 +43,7 @@ int main(int argc, char** argv)
                                                                             param_handler.getAngleEnd(),
                                                                             std::move(udp_interface)));
     ROSScannerNode ros_scanner_node(pnh,
-                                    param_handler.getPublishTopic(),
+                                    DEFAULT_PUBLISH_TOPIC,
                                     param_handler.getFrameID(),
                                     param_handler.getSkip(),
                                     param_handler.getXAxisRotation(),

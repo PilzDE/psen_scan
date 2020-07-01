@@ -143,7 +143,7 @@ if(CATKIN_ENABLE_TESTING)
     APPEND_COVERAGE_COMPILER_FLAGS()
   endif()
 
-  roslaunch_add_file_check(launch)
+  roslaunch_add_file_check(launch DEPENDENCIES ${PROJECT_NAME}_node)
 
   include_directories(include ${catkin_INCLUDE_DIR})
 
@@ -213,6 +213,20 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(build_new_exceptions
     ${catkin_LIBRARIES}
     gtest_main
+  )
+
+  catkin_add_executable_with_gmock(${PROJECT_NAME}_integration_test_scan_topic_node
+    test/integration_test_scan_topic_node.cpp
+    src/laserscan.cpp
+    src/psen_scan_internal_angle.cpp
+    src/ros_scanner_node.cpp
+  )
+  target_link_libraries(${PROJECT_NAME}_integration_test_scan_topic_node
+    ${catkin_LIBRARIES}
+  )
+
+  add_rostest(
+    test/integration_test_scan_topic.test DEPENDENCIES ${PROJECT_NAME}_integration_test_scan_topic_node
   )
 
   # to run: catkin_make -DENABLE_COVERAGE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug psen_scan_coverage (adding -j1 recommended)

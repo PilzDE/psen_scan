@@ -42,7 +42,6 @@ RosParameterHandler::RosParameterHandler(const ros::NodeHandle& nh)
   , angle_start_(DEFAULT_ANGLE_START)
   , angle_end_(DEFAULT_ANGLE_END)
   , x_axis_rotation_(DEFAULT_X_AXIS_ROTATION)
-  , publish_topic_(DEFAULT_PUBLISH_TOPIC)
 {
   updateAllParamsFromParamServer();
 }
@@ -218,16 +217,6 @@ void RosParameterHandler::updateAllParamsFromParamServer()
     ROS_WARN_STREAM(e.what());
     throw PSENScanFatalException("Reading of required parameter failed!");
   }  // update parameter x_axis_rotation
-  // update parameter publish_topic
-  try
-  {
-    getOptionalParamFromParamServer<std::string>("publish_topic", publish_topic_);
-  }
-  catch (const GetROSParameterException& e)
-  {
-    ROS_WARN_STREAM(e.what());
-    throw PSENScanFatalException("Reading of required parameter failed!");
-  }  // update parameter publish_topic
 }
 
 /**
@@ -365,16 +354,6 @@ PSENscanInternalAngle RosParameterHandler::getAngleEnd() const
 Degree RosParameterHandler::getXAxisRotation() const
 {
   return x_axis_rotation_;
-}
-
-/**
- * @brief Getter method for publish_topic_
- *
- * @return std::string
- */
-std::string RosParameterHandler::getPublishTopic() const
-{
-  return publish_topic_;
 }
 
 /**
