@@ -145,88 +145,108 @@ if(CATKIN_ENABLE_TESTING)
 
   roslaunch_add_file_check(launch DEPENDENCIES ${PROJECT_NAME}_node)
 
-  include_directories(include ${catkin_INCLUDE_DIR})
+  include_directories(include
+    ${catkin_INCLUDE_DIR}
+    test/include
+  )
 
-  catkin_add_gmock(scanner_test
-    test/scanner_test.cpp
+  ##################
+  ##  Unit-Tests  ##
+  ##################
+  catkin_add_gmock(unittest_scanner
+    test/unit_tests/unittest_scanner.cpp
     src/scanner.cpp
     src/scanner_frames.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
     src/psen_scan_udp_interface.cpp
   )
-  target_link_libraries(scanner_test
-    ${catkin_LIBRARIES}
-  )
-
-  add_rostest_gmock(ros_scanner_node_test
-    test/ros_scanner_node_test.test
-    test/ros_scanner_node_test.cpp
-    src/ros_scanner_node.cpp
-    src/laserscan.cpp
-    src/psen_scan_internal_angle.cpp
-  )
-  target_link_libraries(ros_scanner_node_test
-    ${catkin_LIBRARIES}
-  )
-
-  catkin_add_gtest(psen_scan_internal_angle_test
-    test/psen_scan_internal_angle_test.cpp
-    src/psen_scan_internal_angle.cpp
-  )
-  target_link_libraries(psen_scan_internal_angle_test
+  target_link_libraries(unittest_scanner
     ${catkin_LIBRARIES}
     gtest_main
   )
 
-  catkin_add_gtest(psen_scan_udp_interface_test
-    test/psen_scan_udp_interface_test.cpp
+  catkin_add_gtest(unittest_psen_scan_internal_angle
+    test/unit_tests/unittest_psen_scan_internal_angle.cpp
     src/psen_scan_internal_angle.cpp
-    src/psen_scan_udp_interface.cpp
   )
-  target_link_libraries(psen_scan_udp_interface_test
+  target_link_libraries(unittest_psen_scan_internal_angle
     ${catkin_LIBRARIES}
     gtest_main
   )
 
-  add_rostest_gtest(ros_parameter_handler_test
-    test/ros_parameter_handler_test.test
-    test/ros_parameter_handler_test.cpp
+  catkin_add_gtest(unittest_decrypt_password
+    test/unit_tests/unittest_decrypt_password.cpp
     src/ros_parameter_handler.cpp
     src/psen_scan_internal_angle.cpp
   )
-  target_link_libraries(ros_parameter_handler_test
-    ${catkin_LIBRARIES}
-  )
-
-  catkin_add_gtest(build_new_exceptions
-    test/new_build_ros_message_exception_test.cpp
-    test/new_coherent_monitoring_frames_exception_test.cpp
-    test/new_decrypt_password_exception_test.cpp
-    test/new_diagnostic_information_exception_test.cpp
-    test/new_fetch_monitoring_frame_exception_test.cpp
-    test/new_get_ros_parameter_exception_test.cpp
-    test/new_parse_monitoring_frame_exception_test.cpp
-    test/new_psen_scan_fatal_exception_test.cpp
-    test/new_udp_read_timeout_exception_test.cpp
-  )
-  target_link_libraries(build_new_exceptions
+  target_link_libraries(unittest_decrypt_password
     ${catkin_LIBRARIES}
     gtest_main
   )
 
-  catkin_add_executable_with_gmock(${PROJECT_NAME}_integration_test_scan_topic_node
-    test/integration_test_scan_topic_node.cpp
+  catkin_add_gtest(unittest_build_new_exceptions
+    test/unit_tests/unittest_new_build_ros_message_exception.cpp
+    test/unit_tests/unittest_new_coherent_monitoring_frames_exception.cpp
+    test/unit_tests/unittest_new_decrypt_password_exception.cpp
+    test/unit_tests/unittest_new_diagnostic_information_exception.cpp
+    test/unit_tests/unittest_new_fetch_monitoring_frame_exception.cpp
+    test/unit_tests/unittest_new_get_ros_parameter_exception.cpp
+    test/unit_tests/unittest_new_parse_monitoring_frame_exception.cpp
+    test/unit_tests/unittest_new_psen_scan_fatal_exception.cpp
+    test/unit_tests/unittest_new_udp_read_timeout_exception.cpp
+  )
+  target_link_libraries(unittest_build_new_exceptions
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
+
+  #########################
+  ##  Integration-Tests  ##
+  #########################
+  catkin_add_gtest(integrationtest_psen_scan_udp_interface
+    test/integration_tests/integrationtest_psen_scan_udp_interface.cpp
+    src/psen_scan_internal_angle.cpp
+    src/psen_scan_udp_interface.cpp
+  )
+  target_link_libraries(integrationtest_psen_scan_udp_interface
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
+
+  catkin_add_executable_with_gmock(${PROJECT_NAME}_integrationtest_scan_topic_node
+    test/integration_tests/integrationtest_scan_topic_node.cpp
     src/laserscan.cpp
     src/psen_scan_internal_angle.cpp
     src/ros_scanner_node.cpp
   )
-  target_link_libraries(${PROJECT_NAME}_integration_test_scan_topic_node
+  target_link_libraries(${PROJECT_NAME}_integrationtest_scan_topic_node
     ${catkin_LIBRARIES}
   )
 
   add_rostest(
-    test/integration_test_scan_topic.test DEPENDENCIES ${PROJECT_NAME}_integration_test_scan_topic_node
+    test/integration_tests/integrationtest_scan_topic.test DEPENDENCIES ${PROJECT_NAME}_integrationtest_scan_topic_node
+  )
+
+  add_rostest_gtest(integrationtest_ros_parameter_handler
+    test/integration_tests/integrationtest_ros_parameter_handler.test
+    test/integration_tests/integrationtest_ros_parameter_handler.cpp
+    src/ros_parameter_handler.cpp
+    src/psen_scan_internal_angle.cpp
+  )
+  target_link_libraries(integrationtest_ros_parameter_handler
+    ${catkin_LIBRARIES}
+  )
+
+  add_rostest_gmock(integrationtest_ros_scanner_node
+    test/integration_tests/integrationtest_ros_scanner_node.test
+    test/integration_tests/integrationtest_ros_scanner_node.cpp
+    src/ros_scanner_node.cpp
+    src/laserscan.cpp
+    src/psen_scan_internal_angle.cpp
+  )
+  target_link_libraries(integrationtest_ros_scanner_node
+    ${catkin_LIBRARIES}
   )
 
   # to run: catkin_make -DENABLE_COVERAGE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug psen_scan_coverage (adding -j1 recommended)

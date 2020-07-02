@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include "psen_scan/ros_scanner_node.h"
 #include "psen_scan/laserscan.h"
-#include "mock_scanner.h"
+#include "psen_scan/mock_scanner.h"
 
 using namespace psen_scan;
 using namespace psen_scan_test;
@@ -40,7 +40,7 @@ ACTION(PSEN_SCAN_PAUSE)
  */
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "integration_test_scan_topic_node");
+  ros::init(argc, argv, "integrationtest_scan_topic_node");
   ros::NodeHandle nh("~");
 
   LaserScan laser_scan_fake(PSENscanInternalAngle(1), PSENscanInternalAngle(1), PSENscanInternalAngle(2));

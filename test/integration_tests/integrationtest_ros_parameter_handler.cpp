@@ -15,7 +15,6 @@
 
 #include <psen_scan/ros_parameter_handler.h>
 #include <psen_scan/default_parameters.h>
-#include <psen_scan/decrypt_password_exception.h>
 #include <psen_scan/psen_scan_fatal_exception.h>
 #include <arpa/inet.h>
 #include <gtest/gtest.h>
@@ -387,75 +386,11 @@ TEST_F(ROSInvalidParameterTest, test_invalid_params_x_axis_rotation)
   ros::param::set("x_axis_rotation", 90.);
   ASSERT_NO_THROW(RosParameterHandler param_handler(node_handle_));
 }
-
-TEST(decryptPasswordTest, charOutOfRange)
-{
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AABBCCDDEEFFGG"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("GGAABBCCDDEEFF"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AABBCGGCDDEEFF"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AABBGACCDDEEFF"), DecryptPasswordException);
-
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AABBCCDDEEFF@@"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("@@AABBCCDDEEFF"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AABBCCDDEEFF@@"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("A@@ABBCCDDEEFF"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AA@ABBCCDDEEFF"), DecryptPasswordException);
-
-  EXPECT_THROW(RosParameterHandler::decryptPassword("aabbccddeeffgg"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("ggaabbccddeeff"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("``aabbccddeeff"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("aabbccddeeff``"), DecryptPasswordException);
-
-  EXPECT_THROW(RosParameterHandler::decryptPassword("//345678901234"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("345678901234::"), DecryptPasswordException);
-}
-
-TEST(decryptPasswordTest, unevenCharacterCount)
-{
-  EXPECT_THROW(RosParameterHandler::decryptPassword("ac0d8d033"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("aC068d033"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("aC0d68D03"), DecryptPasswordException);
-  EXPECT_THROW(RosParameterHandler::decryptPassword("ac0d6 8d03"), DecryptPasswordException);
-  EXPECT_NO_THROW(RosParameterHandler::decryptPassword("ac0d68d033"));
-  EXPECT_NO_THROW(RosParameterHandler::decryptPassword("ac0d6 8d033"));
-}
-
-TEST(decryptPasswordTest, controlCharactersBelow32)
-{
-  EXPECT_THROW(RosParameterHandler::decryptPassword("CD3195"), DecryptPasswordException);  //"\0\0\0"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("AA3111"), DecryptPasswordException);  // In der Mitte "\0"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("c4fd50ca29"),
-               DecryptPasswordException);  // Tab am Anfang "\TABTEST"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("99ec8cca29"),
-               DecryptPasswordException);  // Tab in der Mitte "TE\TABST"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("99ec66c554"),
-               DecryptPasswordException);  // Tab am Ende "TEST\TAB)"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("d2fd50ca29"),
-               DecryptPasswordException);  // \31 am Anfang "\31TEST"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("99ec9Aca29"),
-               DecryptPasswordException);  // \31 in der Mitte "TE\31ST"
-  EXPECT_THROW(RosParameterHandler::decryptPassword("99ec66c562"), DecryptPasswordException);  // Tab am Ende "TEST/31"
-}
-
-TEST(decryptPasswordTest, correctDecryption)
-{
-  EXPECT_EQ(RosParameterHandler::decryptPassword("8e0987d04eadfc68c380e74a"), "Christian123");
-  EXPECT_EQ(RosParameterHandler::decryptPassword("8a0880ea38b115640c70d438"), "Giuseppe!!!!");
-  EXPECT_EQ(RosParameterHandler::decryptPassword("9e1086da35a04aae1276da3e"), "Sascha??????");
-
-  EXPECT_EQ(RosParameterHandler::decryptPassword("8a0880ea38b1 15640c70d438"), "Giuseppe!!!!");
-  EXPECT_EQ(RosParameterHandler::decryptPassword("8a0880ea38b11 5640c70d438"), "Giuseppe!!!!");
-
-  EXPECT_EQ(RosParameterHandler::decryptPassword("8a0880ea38b115640c70d438 "), "Giuseppe!!!!");
-  EXPECT_EQ(RosParameterHandler::decryptPassword(" 8a0880ea38b115640c70d438"), "Giuseppe!!!!");
-
-  EXPECT_EQ(RosParameterHandler::decryptPassword("  8 a0880e a38b115 640c7  0d4   38   "), "Giuseppe!!!!");
-}
 }  // namespace psen_scan_test
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "ros_parameter_handler_test");
+  ros::init(argc, argv, "integrationtest_ros_parameter_handler");
   ros::NodeHandle nh;
 
   testing::InitGoogleTest(&argc, argv);

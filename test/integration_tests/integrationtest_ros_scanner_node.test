@@ -16,6 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
 <launch>
-  <test pkg="psen_scan" type="psen_scan_udp_interface_test" test-name="psen_scan_udp_interface_test">
+  <test pkg="psen_scan" test-name="integrationtest_ros_scanner_node" type="integrationtest_ros_scanner_node">
   </test>
 </launch>

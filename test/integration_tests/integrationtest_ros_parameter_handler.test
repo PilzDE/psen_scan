@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2020 Pilz GmbH & Co. KG
+Copyright (c) 2019 Pilz GmbH & Co. KG
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -14,19 +14,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
+
 <launch>
-
-  <node name="integration_test_scan_topic_node" pkg="psen_scan" type="psen_scan_integration_test_scan_topic_node"/>
-
-  <test name="publishtest"
-        test-name="publishtest"
-        pkg="rostest" type="publishtest">
-    <rosparam>
-      topics:
-        - name: /integration_test_scan_topic_node/scan
-          timeout: 10
-          negative: False
-    </rosparam>
+  <test pkg="psen_scan" type="integrationtest_ros_parameter_handler" test-name="integrationtest_ros_parameter_handler">
   </test>
-
 </launch>

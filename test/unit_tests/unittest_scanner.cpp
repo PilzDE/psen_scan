@@ -16,7 +16,7 @@
 #include <ros/ros.h>
 #include <gtest/gtest.h>
 
-#include "mock_psen_scan_udp_interface.h"
+#include "psen_scan/mock_psen_scan_udp_interface.h"
 #include "psen_scan/scanner.h"
 #include "psen_scan/laserscan.h"
 #include "psen_scan/scanner_data.h"
@@ -547,9 +547,3 @@ TEST_F(ScannerTest, new_scanner)
                                                                           std::move(udp_interface_ptr)));
 }
 }  // namespace psen_scan_test
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

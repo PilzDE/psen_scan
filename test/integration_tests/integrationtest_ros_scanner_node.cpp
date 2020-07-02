@@ -21,7 +21,7 @@
 #include "psen_scan/build_ros_message_exception.h"
 #include "psen_scan/fetch_monitoring_frame_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
-#include "mock_scanner.h"
+#include "psen_scan/mock_scanner.h"
 #include <boost/thread.hpp>
 
 using namespace psen_scan;
@@ -256,7 +256,7 @@ TEST_F(ros_scanner_node_test, constructor)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "ros_scanner_node_test");
+  ros::init(argc, argv, "integrationtest_ros_scanner_node");
   ros::NodeHandle nh;  // keep one nh to avoid
   testing::InitGoogleTest(&argc, argv);
 
