@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.12)
 project(psen_scan)
 
-add_definitions(-std=c++11)
-add_definitions(-Wall)
-add_definitions(-Wextra)
-add_definitions(-Wno-unused-parameter)
-add_definitions(-Werror)
+add_compile_options(-std=c++11)
+add_compile_options(-Wall)
+add_compile_options(-Wextra)
+add_compile_options(-Wno-unused-parameter)
+add_compile_options(-Werror)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -51,7 +51,7 @@ if(CATKIN_SANITIZER)
   set(SANITIZER_OPTIONS "address|thread|undefined")
   if(CATKIN_SANITIZER MATCHES ${SANITIZER_OPTIONS})
     message(STATUS "${CATKIN_SANITIZER}-sanitizer activated.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" "-fsanitize=${CATKIN_SANITIZER} -g")
+    add_compile_options(-fsanitize=${CATKIN_SANITIZER} -g)
   else()
     message(FATAL_ERROR "${CATKIN_SANITIZER} is not a valid sanitizer. Valid options are: [${SANITIZER_OPTIONS}]")
   endif()
