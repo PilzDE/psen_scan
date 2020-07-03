@@ -2,6 +2,18 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.5 (2020-07-03)
+------------------
+* Add coverage check to travis ci and switches to cmake version 2.8.12
+* Rename all test-files and move into subfolders
+* Update README
+* Remove ros parameters 'publish_topic' and 'node_name'.
+* Add integrationtest to test correct publishing of scan topic.
+* Change Rviz config to some common values
+* Add new acceptance test for psen_scan.
+* Add travis job for clang-format
+* Contributors: Pilz GmbH & Co KG
+
 1.0.4 (2020-03-05)
 ------------------
 * Fix/ros parameter handling (#15)
