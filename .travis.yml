@@ -14,6 +14,11 @@ notifications:
       - c.doehn@pilz.de
       - s.heinisch@pilz.de
       - o.ibrocevic@pilz.de
+      - a.gutenkunst@pilz.de
+      - c.henkel@pilz.de
+      - h.slusarek@pilz.de
+      - i.martini@pilz.de
+      - r.feistenauer@pilz.de
 env:
   global:
     - CATKIN_LINT=true
@@ -28,23 +33,23 @@ jobs:
       install:
         - git clone --depth=1 --branch master https://github.com/ros-industrial/industrial_ci.git .industrial_ci
       env:
-        - ROS_REPO=main 
+        - ROS_REPO=main
           ROS_DISTRO="melodic"
       script:
         - .industrial_ci/travis.sh
       allow_failure: true
-      
+
     # Main Job - Checks against released packages of kinetic
     - name: "Build + Test with Main Repo of kinetic (http://packages.ros.org/ros/ubuntu)"
       install:
         - git clone --depth=1 --branch master https://github.com/ros-industrial/industrial_ci.git .industrial_ci
       env:
-        - ROS_REPO=main 
+        - ROS_REPO=main
           ROS_DISTRO="kinetic"
       script:
         - .industrial_ci/travis.sh
       allow_failure: true
-      
+
     # Testing Job - Checks against packages in testing stage of melodic. Relevant since all these get released together during a sync.
     - name: "Build + Test with Testing Repo of melodic (http://packages.ros.org/ros-testing/ubuntu)"
       install:
@@ -54,7 +59,7 @@ jobs:
           ROS_DISTRO="melodic"
       script:
         - .industrial_ci/travis.sh
-        
+
     # Testing Job - Checks against packages in testing stage of kinetic. Relevant since all these get released together during a sync.
     - name: "Build + Test with Testing Repo of kinetic (http://packages.ros.org/ros-testing/ubuntu)"
       install:
@@ -64,14 +69,14 @@ jobs:
           ROS_DISTRO="kinetic"
       script:
         - .industrial_ci/travis.sh
-        
+
     # Testing Job with clang format- Checks against packages in testing stage. Relevant since all these get released together during a sync.
     - name: "Build + Test with clang format with Testing Repo of melodic (http://packages.ros.org/ros-testing/ubuntu)"
       install:
         - git clone --depth=1 --branch master https://github.com/ros-industrial/industrial_ci.git .industrial_ci
       env:
         - ROS_DISTRO="melodic"
-          CLANG_FORMAT_CHECK=file 
+          CLANG_FORMAT_CHECK=file
           CLANG_FORMAT_VERSION=3.9
       script:
         - .industrial_ci/travis.sh
@@ -84,7 +89,7 @@ jobs:
       env:
         - ROS_REPO=testing
           ROS_DISTRO="melodic"
-          CATKIN_LINT=false 
+          CATKIN_LINT=false
           NOT_TEST_BUILD=true
           PARALLEL_TESTS=false
           AFTER_SCRIPT="source /root/ici/industrial_ci_addons/check_coverage.sh && check_coverage psen_scan"
