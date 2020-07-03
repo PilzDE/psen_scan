@@ -2,8 +2,8 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.5 (2020-07-03)
+------------------
 * Add coverage check to travis ci and switches to cmake version 2.8.12
 * Rename all test-files and move into subfolders
 * Update README
