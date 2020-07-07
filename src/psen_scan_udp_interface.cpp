@@ -22,7 +22,6 @@
 
 namespace psen_scan
 {
-
 static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS = 5;
 
 /**
