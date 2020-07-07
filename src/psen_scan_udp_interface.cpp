@@ -23,7 +23,7 @@
 namespace psen_scan
 {
 
-static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS_ = 5;
+static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS = 5;
 
 /**
  * @brief Construct a new PSENscanUDPInterface::PSENscanUDPInterface object
@@ -74,7 +74,7 @@ std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
   Clock::duration d = Clock::now() - t1;
   while (0 == socket_read_.available())
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_LOOP_SLEEP_DURATION_MS_));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_LOOP_SLEEP_DURATION_MS));
     d = Clock::now() - t1;
     Second s(duration_counter);
     if (d > s)
