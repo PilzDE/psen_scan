@@ -39,17 +39,6 @@ jobs:
         - .industrial_ci/travis.sh
       allow_failure: true
 
-    # Main Job - Checks against released packages of kinetic
-    - name: "Build + Test with Main Repo of kinetic (http://packages.ros.org/ros/ubuntu)"
-      install:
-        - git clone --depth=1 --branch master https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-      env:
-        - ROS_REPO=main
-          ROS_DISTRO="kinetic"
-      script:
-        - .industrial_ci/travis.sh
-      allow_failure: true
-
     # Testing Job - Checks against packages in testing stage of melodic. Relevant since all these get released together during a sync.
     - name: "Build + Test with Testing Repo of melodic (http://packages.ros.org/ros-testing/ubuntu)"
       install:
@@ -57,16 +46,6 @@ jobs:
       env:
         - ROS_REPO=testing
           ROS_DISTRO="melodic"
-      script:
-        - .industrial_ci/travis.sh
-
-    # Testing Job - Checks against packages in testing stage of kinetic. Relevant since all these get released together during a sync.
-    - name: "Build + Test with Testing Repo of kinetic (http://packages.ros.org/ros-testing/ubuntu)"
-      install:
-        - git clone --depth=1 --branch master https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-      env:
-        - ROS_REPO=testing
-          ROS_DISTRO="kinetic"
       script:
         - .industrial_ci/travis.sh
 
