@@ -2,6 +2,14 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove travis jobs for kinetic
+* Adds sleep to udp package availabillity check.
+* Install config folder
+* Update travis recipients
+* Contributors: Pilz GmbH & Co KG
+
 1.0.5 (2020-07-03)
 ------------------
 * Add coverage check to travis ci and switches to cmake version 2.8.12
