@@ -2,8 +2,8 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.6 (2020-07-08)
+------------------
 * Remove travis jobs for kinetic
 * Adds sleep to udp package availabillity check.
 * Install config folder
