@@ -138,6 +138,7 @@ if(CATKIN_ENABLE_TESTING)
 
   find_package(rostest REQUIRED)
   find_package(roslaunch REQUIRED)
+  find_package(pilz_testutils REQUIRED)
 
   if(ENABLE_COVERAGE_TESTING)
     find_package(code_coverage REQUIRED)
@@ -147,8 +148,9 @@ if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(launch DEPENDENCIES ${PROJECT_NAME}_node)
 
   include_directories(include
-    ${catkin_INCLUDE_DIR}
     test/include
+    ${pilz_testutils_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIR}
   )
 
   ##################
@@ -202,16 +204,28 @@ if(CATKIN_ENABLE_TESTING)
     gtest_main
   )
 
+
+  catkin_add_gtest(unittest_scanner_communication_interface
+    test/unit_tests/unittest_scanner_communication_interface.cpp
+    src/psen_scan_udp_interface.cpp
+    src/psen_scan_internal_angle.cpp
+  )
+  target_link_libraries(unittest_scanner_communication_interface
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
+
   #########################
   ##  Integration-Tests  ##
   #########################
-  catkin_add_gtest(integrationtest_psen_scan_udp_interface
+  catkin_add_gmock(integrationtest_psen_scan_udp_interface
     test/integration_tests/integrationtest_psen_scan_udp_interface.cpp
     src/psen_scan_internal_angle.cpp
     src/psen_scan_udp_interface.cpp
   )
   target_link_libraries(integrationtest_psen_scan_udp_interface
     ${catkin_LIBRARIES}
+    ${pilz_testutils_LIBRARIES}
     gtest_main
   )
 

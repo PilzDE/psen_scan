@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +19,11 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/array.hpp>
+#include <boost/thread.hpp>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <psen_scan/scanner_data.h>
 
 using boost::asio::ip::udp;
@@ -32,52 +37,83 @@ namespace psen_scan_test
 class MockUDPServer
 {
 public:
-  int block;
-  MockUDPServer(boost::asio::io_service& io_service)
-    : socket_receive_(io_service, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_WRITE))
-    , socket_send_(io_service, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_READ))
-  {
-    block = 0;
-    start_receive();
-  }
+  ~MockUDPServer();
+
+public:
+  MockUDPServer();
+  MOCK_CONST_METHOD0(receivedUdpMsg, void());
+
+public:
+  void startIOService();
+
+  void asyncReceive();
+
+  template <unsigned int N>
+  void asyncSend(const udp::endpoint& send_endpoint, const boost::array<char, N>& send_buffer);
 
 private:
-  void start_receive()
-  {
-    socket_receive_.async_receive_from(boost::asio::buffer(recv_buffer_),
-                                       remote_endpoint_,
-                                       boost::bind(&MockUDPServer::handle_receive,
-                                                   this,
-                                                   boost::asio::placeholders::error,
-                                                   boost::asio::placeholders::bytes_transferred));
-  }
+  void handleReceive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/);
+  void handleSend(const boost::system::error_code& /*error*/, std::size_t /*bytes_transferred*/);
 
-  void handle_receive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/)
-  {
-    if (!error || error == boost::asio::error::message_size)
-    {
-      if (0 == block)
-      {
-        socket_send_.async_send_to(boost::asio::buffer(recv_buffer_),
-                                   udp::endpoint(remote_endpoint_.address(), remote_endpoint_.port() - 1),
-                                   boost::bind(&MockUDPServer::handle_send,
-                                               this,
-                                               boost::asio::placeholders::error,
-                                               boost::asio::placeholders::bytes_transferred));
-      }
-      start_receive();
-    }
-  }
-
-  void handle_send(const boost::system::error_code& /*error*/, std::size_t /*bytes_transferred*/)
-  {
-  }
-
-  udp::socket socket_receive_; /**< Socket used for receiving data. */
-  udp::socket socket_send_;    /**< Socket used for sending data. */
+private:
   udp::endpoint remote_endpoint_;
+
   boost::array<char, 100> recv_buffer_;
+
+  boost::asio::io_service io_service_;
+  boost::thread service_thread_;
+
+  udp::socket socket_receive_{ io_service_, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_WRITE) };
+  udp::socket socket_send_{ io_service_, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_READ) };
 };
+
+inline void MockUDPServer::startIOService()
+{
+  service_thread_ = boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
+}
+
+inline MockUDPServer::MockUDPServer()
+{
+}
+
+inline MockUDPServer::~MockUDPServer()
+{
+  socket_receive_.close();
+  socket_send_.close();
+
+  service_thread_.join();
+}
+
+inline void MockUDPServer::handleSend(const boost::system::error_code& /*error*/, std::size_t /*bytes_transferred*/)
+{
+}
+
+template <unsigned int N>
+inline void MockUDPServer::asyncSend(const udp::endpoint& send_endpoint, const boost::array<char, N>& send_buffer)
+{
+  socket_send_.async_send_to(boost::asio::buffer(send_buffer),
+                             send_endpoint,
+                             boost::bind(&MockUDPServer::handleSend,
+                                         this,
+                                         boost::asio::placeholders::error,
+                                         boost::asio::placeholders::bytes_transferred));
+}
+
+inline void MockUDPServer::handleReceive(const boost::system::error_code& error, std::size_t /*bytes_transferred*/)
+{
+  receivedUdpMsg();
+}
+
+inline void MockUDPServer::asyncReceive()
+{
+  socket_receive_.async_receive_from(boost::asio::buffer(recv_buffer_),
+                                     remote_endpoint_,
+                                     boost::bind(&MockUDPServer::handleReceive,
+                                                 this,
+                                                 boost::asio::placeholders::error,
+                                                 boost::asio::placeholders::bytes_transferred));
+}
+
 }  // namespace psen_scan_test
 
 #endif  // PSEN_SCAN_TEST_MOCK_UDP_SERVER_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -522,7 +522,7 @@ TEST_F(ScannerTest, testFetchMonitoringFrameException)
       .Times(4)
       .READ_FRAME(0)
       .WillOnce(DoAll(fillArg0(expected_monitoring_frames_.at(1)), Return(sizeof(MonitoringFrame) - 1)))
-      .WillOnce(Throw(UDPReadTimeoutException("Exception!")))
+      .WillOnce(Throw(ScannerReadTimeout()))
       .READ_FRAME(2);
 
   Scanner scanner("1.2.3.4",

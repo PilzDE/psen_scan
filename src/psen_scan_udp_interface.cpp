@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -20,6 +20,8 @@
 #include <chrono>
 #include <thread>
 
+using boost::asio::ip::udp;
+
 namespace psen_scan
 {
 static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS = 5;
@@ -32,16 +34,47 @@ static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS = 5;
  * @param host_udp_port UDP Port to receive the data from the scanner
  */
 
-PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service,
-                                           const std::string& scanner_ip,
-                                           const uint32_t& host_udp_port)
-  : socket_write_(io_service, udp::endpoint(udp::v4(), host_udp_port + 1))
-  , socket_read_(io_service, udp::endpoint(udp::v4(), host_udp_port))
+PSENscanUDPInterface::PSENscanUDPInterface(const std::string& scanner_ip, const uint32_t& host_udp_port)
+  : socket_write_(io_service_, udp::endpoint(udp::v4(), host_udp_port + 1))
+  , socket_read_(io_service_, udp::endpoint(udp::v4(), host_udp_port))
   , udp_write_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_WRITE)
   , udp_read_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_READ)
 {
-  socket_write_.connect(udp_write_endpoint_);
-  socket_read_.connect(udp_read_endpoint_);
+}
+
+PSENscanUDPInterface::~PSENscanUDPInterface()
+{
+  close();
+}
+
+void PSENscanUDPInterface::open()
+{
+  try
+  {
+    socket_write_.connect(udp_write_endpoint_);
+    socket_read_.connect(udp_read_endpoint_);
+  }
+  // LCOV_EXCL_START
+  catch (const boost::system::system_error& ex)
+  {
+    throw ScannerOpenFailed(ex.what());
+  }
+  // LCOV_EXCL_STOP
+}
+
+void PSENscanUDPInterface::close()
+{
+  try
+  {
+    socket_write_.close();
+    socket_read_.close();
+  }
+  // LCOV_EXCL_START
+  catch (const boost::system::system_error& ex)
+  {
+    throw ScannerCloseFailed(ex.what());
+  }
+  // LCOV_EXCL_STOP
 }
 
 /**
@@ -52,7 +85,16 @@ PSENscanUDPInterface::PSENscanUDPInterface(boost::asio::io_service& io_service,
 
 void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
 {
-  socket_write_.send(buffer);
+  try
+  {
+    socket_write_.send(buffer);
+  }
+  // LCOV_EXCL_START
+  catch (const boost::system::system_error& ex)
+  {
+    throw ScannerWriteFailed(ex.what());
+  }
+  // LCOV_EXCL_STOP
 }
 
 /**
@@ -61,7 +103,7 @@ void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
  * @param buffer Boost receive buffer class.
  * @return std::size_t Returns how many bytes have been read.
  *
- * @throws UDPReadTimeoutException
+ * @throws ScannerReadTimeout
  */
 
 std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
@@ -82,31 +124,24 @@ std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
       {
         duration_counter += 10;
       }
-      throw UDPReadTimeoutException("Could not receive UDP packet.");
+      throw ScannerReadTimeout();
     }
   };
   duration_counter = 1;
-  return socket_read_.receive(buffer);
+
+  std::size_t bytes_read{ 0 };
+  try
+  {
+    bytes_read = socket_read_.receive(buffer);
+  }
+  // LCOV_EXCL_START
+  catch (const boost::system::system_error& ex)
+  {
+    throw ScannerReadFailed(ex.what());
+  }
+  // LCOV_EXCL_STOP
+
+  return bytes_read;
 }
-
-/**
- * @brief Get the Udp Endpoint object used for write communication
- *
- * @return udp::endpoint
- */
-udp::endpoint PSENscanUDPInterface::getUdpWriteEndpoint() const
-{
-  return udp_write_endpoint_;
-};
-
-/**
- * @brief Get the Udp Endpoint object used for read communication
- *
- * @return udp::endpoint
- */
-udp::endpoint PSENscanUDPInterface::getUdpReadEndpoint() const
-{
-  return udp_read_endpoint_;
-};
 
 }  // namespace psen_scan

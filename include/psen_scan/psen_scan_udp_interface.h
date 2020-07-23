@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -19,40 +19,34 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
-using boost::asio::ip::udp;
+#include <psen_scan/scanner_communication_interface.h>
 
 namespace psen_scan
 {
-// LCOV_EXCL_START
-class UDPInterface
-{
-public:
-  virtual ~UDPInterface() = default;
-  virtual void write(const boost::asio::mutable_buffers_1& buffer) = 0;
-  virtual std::size_t read(boost::asio::mutable_buffers_1& buffer) = 0;
-};
-// LCOV_EXCL_STOP
-
 /**
  * @brief Class for the UDP communication with the scanner.
  *
  */
-class PSENscanUDPInterface : public UDPInterface
+class PSENscanUDPInterface : public ScannerCommunicationInterface
 {
 public:
-  PSENscanUDPInterface(boost::asio::io_service& io_service,
-                       const std::string& scanner_ip,
-                       const uint32_t& host_udp_port);
-  void write(const boost::asio::mutable_buffers_1& buffer);
-  std::size_t read(boost::asio::mutable_buffers_1& buffer);
-  udp::endpoint getUdpWriteEndpoint() const;
-  udp::endpoint getUdpReadEndpoint() const;
+  PSENscanUDPInterface(const std::string& scanner_ip, const uint32_t& host_udp_port);
+
+  virtual ~PSENscanUDPInterface();
+
+public:
+  void open() override;
+  void close() override;
+
+  void write(const boost::asio::mutable_buffers_1& buffer) override;
+  std::size_t read(boost::asio::mutable_buffers_1& buffer) override;
 
 private:
-  udp::socket socket_write_;         /**< Socket used for writing to Laserscanner. */
-  udp::socket socket_read_;          /**< Socket used for reading from Laserscanner. */
-  udp::endpoint udp_write_endpoint_; /**< Endpoint for writing to Laserscanner. */
-  udp::endpoint udp_read_endpoint_;  /**< Endpoint for reading from Laserscanner. */
+  boost::asio::io_service io_service_;
+  boost::asio::ip::udp::socket socket_write_;
+  boost::asio::ip::udp::socket socket_read_;
+  boost::asio::ip::udp::endpoint udp_write_endpoint_; /**< Endpoint for writing to Laserscanner. */
+  boost::asio::ip::udp::endpoint udp_read_endpoint_;  /**< Endpoint for reading from Laserscanner. */
 };
 }  // namespace psen_scan
 

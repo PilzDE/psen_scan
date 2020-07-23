@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Pilz GmbH & Co. KG
+// Copyright (c) 2019-2020 Pilz GmbH & Co. KG
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -44,7 +44,7 @@ bool isValidIpAddress(const char* ipAddress)
  * @param password Password for Laserscanner
  * @param angle_start Start angle of Laserscanner measurements in tenths of degree
  * @param angle_end End angle of Laserscanner measurements in tenths of degree
- * @param udp_interface Pointer to UDP Communication interface
+ * @param communication_interface Pointer to the communication interface
  */
 Scanner::Scanner(const std::string& scanner_ip,
                  const uint32_t& host_ip,
@@ -52,14 +52,14 @@ Scanner::Scanner(const std::string& scanner_ip,
                  const std::string& password,
                  const PSENscanInternalAngle& angle_start,
                  const PSENscanInternalAngle& angle_end,
-                 std::unique_ptr<UDPInterface> udp_interface)
+                 std::unique_ptr<ScannerCommunicationInterface> communication_interface)
   : scanner_ip_(scanner_ip)
   , start_monitoring_frame_(password, host_ip, host_udp_port)
   , stop_monitoring_frame_(password)
   , angle_start_(angle_start)
   , angle_end_(angle_end)
   , previous_monitoring_frame_({})
-  , udp_interface_(std::move(udp_interface))
+  , communication_interface_(std::move(communication_interface))
 {
   if (!isValidIpAddress(scanner_ip_.c_str()))
   {
@@ -87,10 +87,12 @@ Scanner::Scanner(const std::string& scanner_ip,
     throw PSENScanFatalException("Attention: End angle has to be smaller than the physical Maximum!");
   }
 
-  if (!udp_interface_)
+  if (!communication_interface_)
   {
     throw PSENScanFatalException("Nullpointer isn't a valid argument!");
   }
+
+  communication_interface_->open();
 }
 
 /**
@@ -99,7 +101,7 @@ Scanner::Scanner(const std::string& scanner_ip,
  */
 void Scanner::start()
 {
-  udp_interface_->write(boost::asio::buffer(&start_monitoring_frame_, sizeof(StartMonitoringFrame)));
+  communication_interface_->write(boost::asio::buffer(&start_monitoring_frame_, sizeof(StartMonitoringFrame)));
 }
 
 /**
@@ -108,7 +110,7 @@ void Scanner::start()
  */
 void Scanner::stop()
 {
-  udp_interface_->write(boost::asio::buffer(&stop_monitoring_frame_, sizeof(StopMonitoringFrame)));
+  communication_interface_->write(boost::asio::buffer(&stop_monitoring_frame_, sizeof(StopMonitoringFrame)));
 }
 
 /**
@@ -125,13 +127,13 @@ MonitoringFrame Scanner::fetchMonitoringFrame()
   auto buf = boost::asio::buffer(&monitoring_frame, sizeof(MonitoringFrame));
   try
   {
-    bytes_received = udp_interface_->read(buf);
+    bytes_received = communication_interface_->read(buf);
     if (bytes_received != sizeof(MonitoringFrame))
     {
       throw FetchMonitoringFrameException("Received Frame length doesn't match MonitoringFrame length!");
     }
   }
-  catch (const UDPReadTimeoutException& e)
+  catch (const ScannerReadTimeout& e)
   {
     stop();
     sleep(1);

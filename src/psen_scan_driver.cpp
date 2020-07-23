@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "psen_scan/scanner.h"
+#include "psen_scan/scanner_communication_interface.h"
 #include "psen_scan/psen_scan_udp_interface.h"
 #include "psen_scan/ros_parameter_handler.h"
 #include "psen_scan/ros_scanner_node.h"
@@ -31,9 +32,8 @@ int main(int argc, char** argv)
   try
   {
     psen_scan::RosParameterHandler param_handler(pnh);
-    boost::asio::io_service io_service;
-    PSENscanUDPptr udp_interface = PSENscanUDPptr(
-        new PSENscanUDPInterface(io_service, param_handler.getSensorIP(), param_handler.getHostUDPPort()));
+    PSENscanUDPptr udp_interface =
+        PSENscanUDPptr(new PSENscanUDPInterface(param_handler.getSensorIP(), param_handler.getHostUDPPort()));
 
     std::unique_ptr<Scanner> scanner = std::unique_ptr<Scanner>(new Scanner(param_handler.getSensorIP(),
                                                                             param_handler.getHostIP(),
