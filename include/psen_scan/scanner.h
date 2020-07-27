@@ -16,10 +16,11 @@
 #ifndef PSEN_SCAN_SCANNER_H
 #define PSEN_SCAN_SCANNER_H
 
+#include <memory>
+
 #include "psen_scan/scanner_frames.h"
 #include "psen_scan/scanner_communication_interface.h"
 #include "psen_scan/laserscan.h"
-#include <memory>
 
 namespace psen_scan
 {
@@ -62,10 +63,12 @@ private:
   MonitoringFrame previous_monitoring_frame_;   /**< Buffer for incoming Laserscanner data */
   std::unique_ptr<ScannerCommunicationInterface> communication_interface_;
 
-  MonitoringFrame fetchMonitoringFrame();
+private:
+  MonitoringFrame fetchMonitoringFrame(std::chrono::steady_clock::duration timeout);
   bool isDiagnosticInformationOk(const DiagnosticInformation& diag_info);
   bool parseFields(const MonitoringFrame& monitoring_frame);
 };
+
 }  // namespace psen_scan
 
 #endif  // PSEN_SCAN_SCANNER_H

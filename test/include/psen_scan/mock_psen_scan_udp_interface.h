@@ -31,7 +31,7 @@ public:
   MOCK_METHOD0(close, void());
 
   MOCK_METHOD1(write, void(const boost::asio::mutable_buffers_1& buffer));
-  MOCK_METHOD1(read, std::size_t(boost::asio::mutable_buffers_1& buffer));
+  MOCK_METHOD2(read, std::size_t(boost::asio::mutable_buffers_1& buffer, const std::chrono::steady_clock::duration));
 
 private:
   boost::asio::ip::udp::udp::endpoint udp_endpoint_read_;

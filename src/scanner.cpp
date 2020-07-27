@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <algorithm>
+#include <iostream>
+
 #include "psen_scan/scanner.h"
 #include "psen_scan/scanner_data.h"
 #include "psen_scan/fetch_monitoring_frame_exception.h"
@@ -21,11 +24,12 @@
 #include "psen_scan/parse_monitoring_frame_exception.h"
 #include "psen_scan/psen_scan_fatal_exception.h"
 #include "psen_scan/udp_read_timeout_exception.h"
-#include <algorithm>
-#include <iostream>
+#include <psen_scan/timeout_adjust_func.h>
 
 namespace psen_scan
 {
+constexpr std::chrono::seconds MIN_FETCH_FRAME_TIMEOUT{ std::chrono::seconds(1) };
+
 bool isValidIpAddress(const char* ipAddress)
 {
   struct sockaddr_in sa
@@ -120,14 +124,14 @@ void Scanner::stop()
  *
  * @throws FetchMonitoringFrameException
  */
-MonitoringFrame Scanner::fetchMonitoringFrame()
+MonitoringFrame Scanner::fetchMonitoringFrame(std::chrono::steady_clock::duration timeout)
 {
   MonitoringFrame monitoring_frame;
   std::size_t bytes_received;
   auto buf = boost::asio::buffer(&monitoring_frame, sizeof(MonitoringFrame));
   try
   {
-    bytes_received = communication_interface_->read(buf);
+    bytes_received = communication_interface_->read(buf, timeout);
     if (bytes_received != sizeof(MonitoringFrame))
     {
       throw FetchMonitoringFrameException("Received Frame length doesn't match MonitoringFrame length!");
@@ -307,13 +311,14 @@ LaserScan Scanner::getCompleteScan()
   bool firstrun = true;
   do
   {
+    std::chrono::steady_clock::duration fetch_frame_timeout{ MIN_FETCH_FRAME_TIMEOUT };
     bool exception_occured = false;
     do
     {
       exception_occured = false;
       try
       {
-        monitoring_frame = fetchMonitoringFrame();
+        monitoring_frame = fetchMonitoringFrame(fetch_frame_timeout);
         parseFields(monitoring_frame);
         isDiagnosticInformationOk(monitoring_frame.diagnostic_area_.diagnostic_information_);
       }
@@ -321,6 +326,7 @@ LaserScan Scanner::getCompleteScan()
       {
         std::cerr << e.what() << '\n';
         exception_occured = true;
+        fetch_frame_timeout = psen_scan_utils::adjustTimeout(fetch_frame_timeout);
       }
     } while (exception_occured);
 

@@ -245,7 +245,7 @@ ACTION_P(fillArg0, monitoring_frame)
 
 TEST_F(ScannerTest, getCompleteScan_ideal)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(AtMost(6))
       .READ_FRAME(0)
       .READ_FRAME(1)
@@ -273,7 +273,7 @@ TEST_F(ScannerTest, getCompleteScan_ideal)
 
 TEST_F(ScannerTest, getCompleteScan_missing_frame_middle)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(2)).READ_FRAME(0).READ_FRAME(2);
+  EXPECT_CALL(*udp_interface_ptr, read(_, _)).Times(AtMost(2)).READ_FRAME(0).READ_FRAME(2);
 
   Scanner scanner("1.2.3.4",
                   0x01020305,
@@ -288,7 +288,7 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_middle)
 
 TEST_F(ScannerTest, getCompleteScan_missing_frame_first)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_)).Times(AtMost(1)).READ_FRAME(1);
+  EXPECT_CALL(*udp_interface_ptr, read(_, _)).Times(AtMost(1)).READ_FRAME(1);
 
   Scanner scanner("1.2.3.4",
                   0x01020305,
@@ -303,7 +303,7 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_first)
 
 TEST_F(ScannerTest, getCompleteScan_missing_frame_last)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(AtMost(6))
       .READ_FRAME(0)
       .READ_FRAME(1)
@@ -325,7 +325,7 @@ TEST_F(ScannerTest, getCompleteScan_missing_frame_last)
 
 TEST_F(ScannerTest, getCompleteScan_correct_return_value)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(AtMost(6))
       .READ_FRAME(0)
       .READ_FRAME(1)
@@ -414,7 +414,7 @@ TEST_F(ScannerTest, StartStop)
 
 TEST_F(ScannerTest, testParseMonitoringFrameException)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(5)
       .READ_FRAME(6)
       .READ_FRAME(7)
@@ -438,7 +438,7 @@ TEST_F(ScannerTest, testParseMonitoringFrameException)
 
 TEST_F(ScannerTest, testDiagnosticInformationException)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(20)
       .READ_FRAME(10)
       .READ_FRAME(11)
@@ -493,7 +493,7 @@ TEST_F(ScannerTest, testDiagnosticInformationException)
 
 TEST_F(ScannerTest, testCoherentMonitoringFramesException)
 {
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(5)
       .READ_FRAME(30)
       .READ_FRAME(31)
@@ -518,11 +518,11 @@ TEST_F(ScannerTest, testFetchMonitoringFrameException)
 {
   EXPECT_CALL(*udp_interface_ptr, write(_)).Times(2);
 
-  EXPECT_CALL(*udp_interface_ptr, read(_))
+  EXPECT_CALL(*udp_interface_ptr, read(_, _))
       .Times(4)
       .READ_FRAME(0)
       .WillOnce(DoAll(fillArg0(expected_monitoring_frames_.at(1)), Return(sizeof(MonitoringFrame) - 1)))
-      .WillOnce(Throw(ScannerReadTimeout()))
+      .WillOnce(Throw(ScannerReadTimeout("")))
       .READ_FRAME(2);
 
   Scanner scanner("1.2.3.4",

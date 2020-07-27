@@ -15,7 +15,6 @@
 
 #include "psen_scan/psen_scan_udp_interface.h"
 #include "psen_scan/udp_read_timeout_exception.h"
-#include "psen_scan/scanner_data.h"
 #include <boost/chrono/chrono_io.hpp>
 #include <chrono>
 #include <thread>
@@ -26,19 +25,14 @@ namespace psen_scan
 {
 static const uint64_t TIMEOUT_LOOP_SLEEP_DURATION_MS = 5;
 
-/**
- * @brief Construct a new PSENscanUDPInterface::PSENscanUDPInterface object
- *
- * @param io_service Boost communication class
- * @param scanner_ip IP Adress if the scanner
- * @param host_udp_port UDP Port to receive the data from the scanner
- */
-
-PSENscanUDPInterface::PSENscanUDPInterface(const std::string& scanner_ip, const uint32_t& host_udp_port)
+PSENscanUDPInterface::PSENscanUDPInterface(const std::string& scanner_ip,
+                                           const uint32_t& host_udp_port,
+                                           const unsigned short scanner_port_write,
+                                           const unsigned short scanner_port_read)
   : socket_write_(io_service_, udp::endpoint(udp::v4(), host_udp_port + 1))
   , socket_read_(io_service_, udp::endpoint(udp::v4(), host_udp_port))
-  , udp_write_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_WRITE)
-  , udp_read_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), PSEN_SCAN_PORT_READ)
+  , udp_write_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), scanner_port_write)
+  , udp_read_endpoint_(boost::asio::ip::address_v4::from_string(scanner_ip), scanner_port_read)
 {
 }
 
@@ -77,12 +71,6 @@ void PSENscanUDPInterface::close()
   // LCOV_EXCL_STOP
 }
 
-/**
- * @brief Send commands to the scanner device.
- *
- * @param buffer Boost send buffer class.
- */
-
 void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
 {
   try
@@ -97,37 +85,23 @@ void PSENscanUDPInterface::write(const boost::asio::mutable_buffers_1& buffer)
   // LCOV_EXCL_STOP
 }
 
-/**
- * @brief Receive data from the scanner.
- *
- * @param buffer Boost receive buffer class.
- * @return std::size_t Returns how many bytes have been read.
- *
- * @throws ScannerReadTimeout
- */
-
-std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer)
+bool PSENscanUDPInterface::isUdpMsgAvailable() const
 {
-  static int duration_counter = 1;
-  typedef boost::chrono::system_clock Clock;
-  typedef boost::chrono::duration<int64_t, boost::ratio<1>> Second;
-  Clock::time_point t1 = Clock::now();
-  Clock::duration d = Clock::now() - t1;
-  while (0 == socket_read_.available())
+  return socket_read_.available() > 0u;
+}
+
+std::size_t PSENscanUDPInterface::read(boost::asio::mutable_buffers_1& buffer,
+                                       const std::chrono::steady_clock::duration timeout)
+{
+  const auto start_time{ std::chrono::steady_clock::now() };
+  while (!isUdpMsgAvailable())
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_LOOP_SLEEP_DURATION_MS));
-    d = Clock::now() - t1;
-    Second s(duration_counter);
-    if (d > s)
+    if ((std::chrono::steady_clock::now() - start_time) > timeout)
     {
-      if (60 > duration_counter)
-      {
-        duration_counter += 10;
-      }
-      throw ScannerReadTimeout();
+      throw ScannerReadTimeout("Timeout while waiting for new UDP message");
     }
-  };
-  duration_counter = 1;
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_LOOP_SLEEP_DURATION_MS));
+  }
 
   std::size_t bytes_read{ 0 };
   try

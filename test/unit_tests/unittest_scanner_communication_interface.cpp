@@ -15,6 +15,7 @@
 
 #include <string>
 #include <memory>
+#include <chrono>
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -31,23 +32,21 @@ const std::string IP_ADDR{ "127.0.0.1" };
 
 TEST(ScannerCommunicationIntefaceTests, testFailingWriteOperation)
 {
-  std::unique_ptr<ScannerCommunicationInterface> comm_interface =
-      std::unique_ptr<PSENscanUDPInterface>(new PSENscanUDPInterface(IP_ADDR, UDP_PORT));
+  PSENscanUDPInterface comm_interface(IP_ADDR, UDP_PORT);
 
   boost::array<char, 10> write_buf = { "Hello!" };
-  ASSERT_THROW(comm_interface->write(boost::asio::buffer(write_buf)), ScannerWriteFailed);
+  ASSERT_THROW(comm_interface.write(boost::asio::buffer(write_buf)), ScannerWriteFailed);
 }
 
 TEST(ScannerCommunicationIntefaceTests, testReadTimeout)
 {
-  std::unique_ptr<ScannerCommunicationInterface> comm_interface =
-      std::unique_ptr<PSENscanUDPInterface>(new PSENscanUDPInterface(IP_ADDR, UDP_PORT));
+  PSENscanUDPInterface comm_interface(IP_ADDR, UDP_PORT + 1);
+  comm_interface.open();
 
-  comm_interface->open();
-
+  constexpr auto read_timeout{ std::chrono::seconds(3) };
   boost::array<char, 10> read_array;
   auto read_buf{ boost::asio::buffer(read_array) };
-  ASSERT_THROW(comm_interface->read(read_buf), ScannerReadTimeout);
+  ASSERT_THROW(comm_interface.read(read_buf, read_timeout), ScannerReadTimeout);
 }
 
 TEST(ScannerCommunicationIntefaceTests, testScannerOpenFailedForCompleteCoverage)
@@ -66,8 +65,8 @@ TEST(ScannerCommunicationIntefaceTests, testScannerWriteFailedForCompleteCoverag
 
 TEST(ScannerCommunicationIntefaceTests, testScannerScannerReadTimeoutForCompleteCoverage)
 {
-  std::unique_ptr<ScannerReadTimeout> e(new ScannerReadTimeout());
-  const std::string except_str{ "Timeout while waiting for message from scanner" };
+  const std::string except_str{ "DummyText" };
+  std::unique_ptr<ScannerReadTimeout> e(new ScannerReadTimeout(except_str));
   EXPECT_EQ(except_str, e->what());
 }
 

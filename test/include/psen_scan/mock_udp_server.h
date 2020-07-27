@@ -40,7 +40,8 @@ public:
   ~MockUDPServer();
 
 public:
-  MockUDPServer();
+  MockUDPServer(const unsigned short scanner_port_write = psen_scan::PSEN_SCAN_PORT_WRITE,
+                const unsigned short scanner_port_read = psen_scan::PSEN_SCAN_PORT_READ);
   MOCK_CONST_METHOD0(receivedUdpMsg, void());
 
 public:
@@ -63,8 +64,8 @@ private:
   boost::asio::io_service io_service_;
   boost::thread service_thread_;
 
-  udp::socket socket_receive_{ io_service_, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_WRITE) };
-  udp::socket socket_send_{ io_service_, udp::endpoint(udp::v4(), psen_scan::PSEN_SCAN_PORT_READ) };
+  udp::socket socket_receive_;
+  udp::socket socket_send_;
 };
 
 inline void MockUDPServer::startIOService()
@@ -72,7 +73,9 @@ inline void MockUDPServer::startIOService()
   service_thread_ = boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
 }
 
-inline MockUDPServer::MockUDPServer()
+inline MockUDPServer::MockUDPServer(const unsigned short scanner_port_write, const unsigned short scanner_port_read)
+  : socket_receive_(io_service_, udp::endpoint(udp::v4(), scanner_port_write))
+  , socket_send_(io_service_, udp::endpoint(udp::v4(), scanner_port_read))
 {
 }
 

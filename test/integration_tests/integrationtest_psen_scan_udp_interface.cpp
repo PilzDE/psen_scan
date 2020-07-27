@@ -37,11 +37,13 @@ using boost::asio::ip::udp;
 namespace psen_scan_test
 {
 static const std::string MSG_RECEIVED{ "msg_received" };
+
 static const std::string IP_ADDRESS{ "127.0.0.1" };
 
-static constexpr uint32_t UDP_PORT{ 55000 };
+static constexpr std::chrono::seconds READ_TIMEOUT{ std::chrono::seconds(1) };
 static constexpr int WRITE_TIMEOUT_MS{ 2000 };
-static constexpr std::chrono::seconds READ_TIMEOUT{ 3 };
+
+static constexpr uint32_t UDP_PORT{ 45000 };
 
 class ScannerCommunicationInterfaceTests : public testing::Test, public testing::AsyncTest
 {
@@ -53,18 +55,19 @@ protected:
 
 protected:
   MockUDPServer mock_udp_server_;
-  std::unique_ptr<PSENscanUDPInterface> scanner_interface_{ new PSENscanUDPInterface(IP_ADDRESS, UDP_PORT) };
+  PSENscanUDPInterface scanner_interface_{ IP_ADDRESS, UDP_PORT };
 };
 
 void ScannerCommunicationInterfaceTests::SetUp()
 {
-  scanner_interface_->open();
+  scanner_interface_.open();
 }
 
 std::future<std::size_t>
 ScannerCommunicationInterfaceTests::startAsyncReadOperation(boost::asio::mutable_buffers_1& read_buf)
 {
-  return std::async(std::launch::async, [this, &read_buf]() { return scanner_interface_->read(read_buf); });
+  return std::async(std::launch::async,
+                    [this, &read_buf]() { return scanner_interface_.read(read_buf, READ_TIMEOUT); });
 }
 
 TEST_F(ScannerCommunicationInterfaceTests, testScannerWriteOperation)
@@ -74,9 +77,9 @@ TEST_F(ScannerCommunicationInterfaceTests, testScannerWriteOperation)
 
   mock_udp_server_.asyncReceive();
   boost::array<char, 10> write_buf = { "Hello!" };
-  scanner_interface_->write(boost::asio::buffer(write_buf));
+  scanner_interface_.write(boost::asio::buffer(write_buf));
 
-  BARRIER(MSG_RECEIVED, WRITE_TIMEOUT_MS);
+  BARRIER(MSG_RECEIVED);
 }
 
 TEST_F(ScannerCommunicationInterfaceTests, testScannerReadOperation)

@@ -204,6 +204,13 @@ if(CATKIN_ENABLE_TESTING)
     gtest_main
   )
 
+  catkin_add_gtest(unittest_timeout_adjust_func
+    test/unit_tests/unittest_timeout_adjust_func.cpp
+  )
+  target_link_libraries(unittest_timeout_adjust_func
+    ${catkin_LIBRARIES}
+    gtest_main
+  )
 
   catkin_add_gtest(unittest_scanner_communication_interface
     test/unit_tests/unittest_scanner_communication_interface.cpp

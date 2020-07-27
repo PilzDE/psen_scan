@@ -16,10 +16,13 @@
 #ifndef PSEN_SCAN_UDP_INTERFACE_H
 #define PSEN_SCAN_UDP_INTERFACE_H
 
+#include <chrono>
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
 #include <psen_scan/scanner_communication_interface.h>
+#include "psen_scan/scanner_data.h"
 
 namespace psen_scan
 {
@@ -30,7 +33,10 @@ namespace psen_scan
 class PSENscanUDPInterface : public ScannerCommunicationInterface
 {
 public:
-  PSENscanUDPInterface(const std::string& scanner_ip, const uint32_t& host_udp_port);
+  PSENscanUDPInterface(const std::string& scanner_ip,
+                       const uint32_t& host_udp_port,
+                       const unsigned short scanner_port_write = PSEN_SCAN_PORT_WRITE,
+                       const unsigned short scanner_port_read = PSEN_SCAN_PORT_READ);
 
   virtual ~PSENscanUDPInterface();
 
@@ -39,15 +45,19 @@ public:
   void close() override;
 
   void write(const boost::asio::mutable_buffers_1& buffer) override;
-  std::size_t read(boost::asio::mutable_buffers_1& buffer) override;
+  std::size_t read(boost::asio::mutable_buffers_1& buffer, const std::chrono::steady_clock::duration timeout) override;
+
+private:
+  bool isUdpMsgAvailable() const;
 
 private:
   boost::asio::io_service io_service_;
   boost::asio::ip::udp::socket socket_write_;
   boost::asio::ip::udp::socket socket_read_;
-  boost::asio::ip::udp::endpoint udp_write_endpoint_; /**< Endpoint for writing to Laserscanner. */
-  boost::asio::ip::udp::endpoint udp_read_endpoint_;  /**< Endpoint for reading from Laserscanner. */
+  boost::asio::ip::udp::endpoint udp_write_endpoint_;
+  boost::asio::ip::udp::endpoint udp_read_endpoint_;
 };
+
 }  // namespace psen_scan
 
 #endif  // PSEN_SCAN_UDP_INTERFACE_H
