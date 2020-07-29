@@ -15,7 +15,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-# Acceptance Test PSENscan using Rviz
+# Acceptance Test High CPU usage
 
 ## Prerequisites
   - Properly configure the PSENscan safety laser scanner.
@@ -29,11 +29,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ```
   roslaunch psen_scan psen_scan.launch sensor_ip:=<sensor_ip> host_ip:=<host_ip> host_udp_port:=<host_udp_port>
   ```
-  Replace the variables in brackets with appropriate values for your setup.
+  (Replace the variables in brackets with appropriate values for your setup.)
 
-  2. Place your hand in front of the PSENscan.
+  and
+  ```
+  rosrun psen_scan acceptancetest_high_cpu.py
+  ```
 
-  3. Move your hand left and right around the PSENscan.
+  2. Observe output of `acceptancetest_high_cpu.py` over one minute.
 
 ### Expected Results
 
@@ -41,6 +44,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
   1. Rviz shows a red laserscan centered around the origin that matches your surroundings as well as some axes.
 
-  2. Rviz shows distance values near to the center toward the X-Axis.
-
-  3. Rviz shows distance values near to the center moving left and right around the origin in synch with your hand movements.
+  2. The script runs successfully.
