@@ -2,8 +2,8 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.7 (2020-07-31)
+------------------
 * Introducing an acceptance test to avoid high cpu usage
 * Refactor read timeout in psen_scan_upd_interface.h (#45)
 * Improve/integrationtest psen scan upd interface (#42)
