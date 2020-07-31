@@ -2,6 +2,13 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Introducing an acceptance test to avoid high cpu usage
+* Refactor read timeout in psen_scan_upd_interface.h (#45)
+* Improve/integrationtest psen scan upd interface (#42)
+* Contributors: Pilz GmbH & Co KG
+
 1.0.6 (2020-07-08)
 ------------------
 * Remove travis jobs for kinetic
