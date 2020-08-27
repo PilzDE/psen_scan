@@ -100,6 +100,9 @@ If you've created an application package with your own launch file as described 
 [tutorials](http://wiki.ros.org/psen_scan/Tutorials/),
 you can easily adjust the aforementioned configuration parameters.
 
+## Test concept
+![psen_scan_test_concept](doc/test_architecture.svg)
+
 ## You need further information?
 Our international hotline staff will support you individually about our ROS packages at
 ros@pilz.de
