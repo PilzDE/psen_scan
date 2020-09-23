@@ -271,6 +271,16 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
   )
 
+  ########################
+  ##  Acceptance-Tests  ##
+  ########################
+  add_executable(acceptancetest_publish_test
+    test/acceptance_tests/acceptancetest_publish_test.cpp
+  )
+  target_link_libraries(acceptancetest_publish_test
+    ${catkin_LIBRARIES}
+  )
+
   # to run: catkin_make -DENABLE_COVERAGE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug psen_scan_coverage (adding -j1 recommended)
   if(ENABLE_COVERAGE_TESTING)
     set(COVERAGE_EXCLUDES "*/${PROJECT_NAME}/test*"

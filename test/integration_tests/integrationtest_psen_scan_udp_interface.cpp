@@ -41,7 +41,6 @@ static const std::string MSG_RECEIVED{ "msg_received" };
 static const std::string IP_ADDRESS{ "127.0.0.1" };
 
 static constexpr std::chrono::seconds READ_TIMEOUT{ std::chrono::seconds(1) };
-static constexpr int WRITE_TIMEOUT_MS{ 2000 };
 
 static constexpr uint32_t UDP_PORT{ 45000 };
 
