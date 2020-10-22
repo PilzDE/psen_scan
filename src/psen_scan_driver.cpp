@@ -29,6 +29,9 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "psen_scan_node");
   ros::NodeHandle pnh("~");
 
+  ROS_WARN("You are using an outdated version of psen_scan. Please update your scanner firmware and use the new "
+           "psen_scan_v2 package. See https://github.com/PilzDE/psen_scan_v2/#migration for detailed instruction.");
+
   try
   {
     psen_scan::RosParameterHandler param_handler(pnh);

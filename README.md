@@ -1,3 +1,7 @@
+## **Warning**
+
+**You are using an outdated version of psen_scan. Please update your scanner firmware and use the new psen_scan_v2 package. See https://github.com/PilzDE/psen_scan_v2/#migration for detailed instruction.**
+
 [![PILZ](img/pilz-logo.png)](https://www.pilz.com)
 
 # PILZ safety laser scanner PSENscan
