@@ -2,6 +2,13 @@
 Changelog for package psen_scan
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.8 (2020-10-22)
+------------------
+* Add deprecation warning: End-of-life reached (#101)
+* Add new AcceptanceTest for publish_test. (#100)
+* Create test_concept (#41)
+* Contributors: Pilz GmbH & Co KG
+
 1.0.7 (2020-07-31)
 ------------------
 * Introducing an acceptance test to avoid high cpu usage
